@@ -317,6 +317,7 @@ export type Database = {
           po_id: string | null
           saelim_no: string | null
           shipping_doc_id: string | null
+          status: string
           updated_at: string | null
         }
         Insert: {
@@ -334,6 +335,7 @@ export type Database = {
           po_id?: string | null
           saelim_no?: string | null
           shipping_doc_id?: string | null
+          status?: string
           updated_at?: string | null
         }
         Update: {
@@ -351,6 +353,7 @@ export type Database = {
           po_id?: string | null
           saelim_no?: string | null
           shipping_doc_id?: string | null
+          status?: string
           updated_at?: string | null
         }
         Relationships: [

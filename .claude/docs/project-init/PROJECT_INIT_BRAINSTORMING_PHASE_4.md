@@ -24,10 +24,10 @@ Phase 4는 **모든 문서 모듈(PO, PI, Shipping, Orders, Customs)에서 공�
 
 | # | Role | File | Scope |
 |---|------|------|-------|
-| 1 | **Architect** | [architect.md](brainstorm/phase4/architect.md) | 시스템 아키텍처, DB 스키마, 모듈 통합, 구현 단계 |
-| 2 | **Frontend Dev** | [frontend.md](brainstorm/phase4/frontend.md) | Tiptap 컴포넌트, UI/UX, 반응형, 한국어 |
-| 3 | **Backend Dev** | [backend.md](brainstorm/phase4/backend.md) | Migration, Storage, Loader/Action, 업로드 전략 |
-| 4 | **Security Reviewer** | [security.md](brainstorm/phase4/security.md) | 파일 업로드 보안, XSS, RLS, Storage 접근제어 |
+| 1 | **Architect** | [architect.md](../brainstorm/phase4/architect.md) | 시스템 아키텍처, DB 스키마, 모듈 통합, 구현 단계 |
+| 2 | **Frontend Dev** | [frontend.md](../brainstorm/phase4/frontend.md) | Tiptap 컴포넌트, UI/UX, 반응형, 한국어 |
+| 3 | **Backend Dev** | [backend.md](../brainstorm/phase4/backend.md) | Migration, Storage, Loader/Action, 업로드 전략 |
+| 4 | **Security Reviewer** | [security.md](../brainstorm/phase4/security.md) | 파일 업로드 보안, XSS, RLS, Storage 접근제어 |
 | 5 | **Researcher** | (context7 리서치) | Tiptap 최신 문서, 대안 에디터, Storage 패턴 |
 
 **제외:** Tester, Perf-analyzer, Code-reviewer (코드 없음, 시기상조)
@@ -519,7 +519,7 @@ package.json                     # +@tiptap/* packages
 ## 15. Detailed Notes by Team Member
 
 각 팀원별 상세 분석은 아래 파일 참조:
-- [Architect Notes](brainstorm/phase4/architect.md) - 시스템 아키텍처, 데이터 흐름, 통합 패턴
-- [Frontend Dev Notes](brainstorm/phase4/frontend.md) - Tiptap 컴포넌트, UI/UX, 반응형, 와이어프레임
-- [Backend Dev Notes](brainstorm/phase4/backend.md) - Migration, Storage, Loader/Action, 쿼리 패턴
-- [Security Review Notes](brainstorm/phase4/security.md) - 보안 감사, 체크리스트, 라이브 DB 감사 결과
+- [Architect Notes](../brainstorm/phase4/architect.md) - 시스템 아키텍처, 데이터 흐름, 통합 패턴
+- [Frontend Dev Notes](../brainstorm/phase4/frontend.md) - Tiptap 컴포넌트, UI/UX, 반응형, 와이어프레임
+- [Backend Dev Notes](../brainstorm/phase4/backend.md) - Migration, Storage, Loader/Action, 쿼리 패턴
+- [Security Review Notes](../brainstorm/phase4/security.md) - 보안 감사, 체크리스트, 라이브 DB 감사 결과

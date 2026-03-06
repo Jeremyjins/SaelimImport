@@ -10,11 +10,11 @@
 
 | # | Role | File | Scope |
 |---|------|------|-------|
-| 1 | **Architect** | [architect-notes.md](brainstorm/phase5/architect-notes.md) | 구현 단계, 데이터 플로우, 문서번호, 스터핑 아키텍처, 라우팅 |
-| 2 | **Frontend Dev** | [frontend-notes.md](brainstorm/phase5/frontend-notes.md) | 컴포넌트 설계, 폼 레이아웃, 스터핑 UI, CSV UX, 반응형 |
-| 3 | **Backend Dev** | [backend-notes.md](brainstorm/phase5/backend-notes.md) | 로더/액션, Zod 스키마, CRUD, 중량 집계, 크로스모듈 |
-| 4 | **Security Reviewer** | [security-notes.md](brainstorm/phase5/security-notes.md) | RLS 정책, 입력 검증, CSV 보안, 데이터 격리 |
-| 5 | **Researcher** | [research-notes.md](brainstorm/phase5/research-notes.md) | CSV 파싱, 무역서류 표준, 중량 계산, UX 패턴, ETD/ETA |
+| 1 | **Architect** | [architect-notes.md](../brainstorm/phase5/architect-notes.md) | 구현 단계, 데이터 플로우, 문서번호, 스터핑 아키텍처, 라우팅 |
+| 2 | **Frontend Dev** | [frontend-notes.md](../brainstorm/phase5/frontend-notes.md) | 컴포넌트 설계, 폼 레이아웃, 스터핑 UI, CSV UX, 반응형 |
+| 3 | **Backend Dev** | [backend-notes.md](../brainstorm/phase5/backend-notes.md) | 로더/액션, Zod 스키마, CRUD, 중량 집계, 크로스모듈 |
+| 4 | **Security Reviewer** | [security-notes.md](../brainstorm/phase5/security-notes.md) | RLS 정책, 입력 검증, CSV 보안, 데이터 격리 |
+| 5 | **Researcher** | [research-notes.md](../brainstorm/phase5/research-notes.md) | CSV 파싱, 무역서류 표준, 중량 계산, UX 패턴, ETD/ETA |
 
 **제외:** Tester (코드 없음), Perf-analyzer (시기상조), Code-reviewer (코드 없음)
 
@@ -342,8 +342,8 @@ stuffingRollSchema  // roll_no, product_name, gsm, width_mm, length_m, net/gross
 ## 14. Detailed Notes
 
 각 팀원별 상세 분석은 아래 파일 참조:
-- [Architect Notes](brainstorm/phase5/architect-notes.md) - 전체 아키텍처, 구현 순서, 타입 정의
-- [Frontend Dev Notes](brainstorm/phase5/frontend-notes.md) - UI 컴포넌트, 레이아웃, 한국어 라벨
-- [Backend Dev Notes](brainstorm/phase5/backend-notes.md) - 로더/액션 코드, Supabase 쿼리 패턴
-- [Security Review Notes](brainstorm/phase5/security-notes.md) - RLS, 입력 검증, CSV 보안 체크리스트
-- [Research Notes](brainstorm/phase5/research-notes.md) - CSV 파싱, 무역 표준, ETD/ETA
+- [Architect Notes](../brainstorm/phase5/architect-notes.md) - 전체 아키텍처, 구현 순서, 타입 정의
+- [Frontend Dev Notes](../brainstorm/phase5/frontend-notes.md) - UI 컴포넌트, 레이아웃, 한국어 라벨
+- [Backend Dev Notes](../brainstorm/phase5/backend-notes.md) - 로더/액션 코드, Supabase 쿼리 패턴
+- [Security Review Notes](../brainstorm/phase5/security-notes.md) - RLS, 입력 검증, CSV 보안 체크리스트
+- [Research Notes](../brainstorm/phase5/research-notes.md) - CSV 파싱, 무역 표준, ETD/ETA

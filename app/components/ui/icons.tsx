@@ -52,4 +52,15 @@ export {
   Anchor,
   FileUp,
   Container,
+  // Order module icons
+  Calendar,
+  Link2,
+  Unlink,
+  Clock,
+  RefreshCw,
+  // Customs module icons
+  Receipt,
+  CheckCircle2,
+  ToggleLeft,
+  ToggleRight,
 } from "lucide-react";

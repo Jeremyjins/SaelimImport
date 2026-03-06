@@ -31,6 +31,7 @@ import {
   Copy,
   Trash2,
   Loader2,
+  Receipt,
 } from "~/components/ui/icons";
 import { loader, action } from "~/loaders/shipping.$id.server";
 import type { ShippingWithOrgs } from "~/types/shipping";
@@ -144,6 +145,12 @@ export default function ShippingDetailPage() {
                   <Copy className="mr-2 h-4 w-4" />
                 )}
                 복제
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to={`/customs/new?from_shipping=${shipping.id}`}>
+                  <Receipt className="mr-2 h-4 w-4" />
+                  통관 생성
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
