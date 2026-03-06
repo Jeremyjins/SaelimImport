@@ -34,8 +34,10 @@ import {
 } from "~/components/ui/icons";
 import { loader, action } from "~/loaders/po.$id.server";
 import type { POWithOrgs } from "~/types/po";
+import type { ContentItem } from "~/types/content";
 import { formatDate, formatCurrency } from "~/lib/format";
 import type { DocStatus } from "~/types/common";
+import { ContentSection } from "~/components/content/content-section";
 
 export { loader, action };
 
@@ -49,9 +51,11 @@ interface ConnectedPI {
 }
 
 export default function PODetailPage() {
-  const { po, pis } = useLoaderData<typeof loader>() as unknown as {
+  const { po, pis, content, userId } = useLoaderData<typeof loader>() as unknown as {
     po: POWithOrgs;
     pis: ConnectedPI[];
+    content: ContentItem | null;
+    userId: string;
   };
   const fetcher = useFetcher();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -208,6 +212,14 @@ export default function PODetailPage() {
               </CardContent>
             </Card>
           )}
+
+          {/* 메모 & 첨부파일 & 댓글 */}
+          <ContentSection
+            content={content}
+            contentType="po"
+            parentId={po.id}
+            currentUserId={userId}
+          />
 
           {/* 하단 메타 정보 */}
           <div className="flex gap-4 text-xs text-zinc-400">

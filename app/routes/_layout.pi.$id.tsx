@@ -33,12 +33,18 @@ import {
 } from "~/components/ui/icons";
 import { loader, action } from "~/loaders/pi.$id.server";
 import type { PIWithOrgs } from "~/types/pi";
+import type { ContentItem } from "~/types/content";
 import { formatDate } from "~/lib/format";
+import { ContentSection } from "~/components/content/content-section";
 
 export { loader, action };
 
 export default function PIDetailPage() {
-  const { pi } = useLoaderData<typeof loader>() as unknown as { pi: PIWithOrgs };
+  const { pi, content, userId } = useLoaderData<typeof loader>() as unknown as {
+    pi: PIWithOrgs;
+    content: ContentItem | null;
+    userId: string;
+  };
   const fetcher = useFetcher();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
@@ -158,6 +164,14 @@ export default function PIDetailPage() {
               </CardContent>
             </Card>
           )}
+
+          {/* 메모 & 첨부파일 & 댓글 */}
+          <ContentSection
+            content={content}
+            contentType="pi"
+            parentId={pi.id}
+            currentUserId={userId}
+          />
 
           {/* 하단 메타 정보 */}
           <div className="flex gap-4 text-xs text-zinc-400">

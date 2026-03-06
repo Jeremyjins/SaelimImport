@@ -5,6 +5,7 @@ import { requireGVUser } from "~/lib/auth.server";
 import type { Json } from "~/types/database";
 import type { POLineItem } from "~/types/po";
 import { lineItemSchema, poSchema } from "~/loaders/po.schema";
+import { loadContent, handleContentAction } from "~/lib/content.server";
 
 // ── 공통 타입 ──────────────────────────────────────────────
 
@@ -17,14 +18,14 @@ interface DetailLoaderArgs {
 // ── Detail Loader ─────────────────────────────────────────
 
 export async function loader({ request, context, params }: DetailLoaderArgs) {
-  const { supabase, responseHeaders } = await requireGVUser(request, context);
+  const { supabase, user, responseHeaders } = await requireGVUser(request, context);
 
   const idResult = z.string().uuid().safeParse(params.id);
   if (!idResult.success) {
     throw data(null, { status: 404, headers: responseHeaders });
   }
 
-  const [{ data: po, error }, { data: pis }] = await Promise.all([
+  const [{ data: po, error }, { data: pis }, { content }] = await Promise.all([
     supabase
       .from("purchase_orders")
       .select(
@@ -44,13 +45,15 @@ export async function loader({ request, context, params }: DetailLoaderArgs) {
       .eq("po_id", idResult.data)
       .is("deleted_at", null)
       .order("pi_date", { ascending: false }),
+    // 콘텐츠 (메모 & 첨부파일)
+    loadContent(supabase, "po", idResult.data),
   ]);
 
   if (error || !po) {
     throw data(null, { status: 404, headers: responseHeaders });
   }
 
-  return data({ po, pis: pis ?? [] }, { headers: responseHeaders });
+  return data({ po, pis: pis ?? [], content, userId: user.id }, { headers: responseHeaders });
 }
 
 // ── Edit Loader ───────────────────────────────────────────
@@ -135,6 +138,19 @@ export async function action({ request, context, params }: DetailLoaderArgs) {
 
   const formData = await request.formData();
   const intent = formData.get("_action") as string;
+
+  // ── Content 액션 (메모 & 첨부파일) ─────────────────────
+  if (intent?.startsWith("content_")) {
+    return handleContentAction(
+      supabase,
+      user.id,
+      "po",
+      id,
+      intent,
+      formData,
+      responseHeaders
+    );
+  }
 
   // ── Update ──────────────────────────────────────────────
   if (intent === "update") {

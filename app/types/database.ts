@@ -20,6 +20,7 @@ export type Database = {
           content_id: string | null
           created_at: string | null
           created_by: string | null
+          deleted_at: string | null
           id: string
           updated_at: string | null
         }
@@ -28,6 +29,7 @@ export type Database = {
           content_id?: string | null
           created_at?: string | null
           created_by?: string | null
+          deleted_at?: string | null
           id?: string
           updated_at?: string | null
         }
@@ -36,6 +38,7 @@ export type Database = {
           content_id?: string | null
           created_at?: string | null
           created_by?: string | null
+          deleted_at?: string | null
           id?: string
           updated_at?: string | null
         }
@@ -53,26 +56,35 @@ export type Database = {
         Row: {
           content_id: string | null
           created_at: string | null
+          created_by: string | null
+          deleted_at: string | null
           file_name: string
           file_size: number | null
           file_url: string
           id: string
+          mime_type: string | null
         }
         Insert: {
           content_id?: string | null
           created_at?: string | null
+          created_by?: string | null
+          deleted_at?: string | null
           file_name: string
           file_size?: number | null
           file_url: string
           id?: string
+          mime_type?: string | null
         }
         Update: {
           content_id?: string | null
           created_at?: string | null
+          created_by?: string | null
+          deleted_at?: string | null
           file_name?: string
           file_size?: number | null
           file_url?: string
           id?: string
+          mime_type?: string | null
         }
         Relationships: [
           {
@@ -89,6 +101,7 @@ export type Database = {
           body: Json | null
           created_at: string | null
           created_by: string | null
+          deleted_at: string | null
           id: string
           parent_id: string
           title: string | null
@@ -99,6 +112,7 @@ export type Database = {
           body?: Json | null
           created_at?: string | null
           created_by?: string | null
+          deleted_at?: string | null
           id?: string
           parent_id: string
           title?: string | null
@@ -109,6 +123,7 @@ export type Database = {
           body?: Json | null
           created_at?: string | null
           created_by?: string | null
+          deleted_at?: string | null
           id?: string
           parent_id?: string
           title?: string | null

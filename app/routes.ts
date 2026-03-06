@@ -34,4 +34,7 @@ export default [
   layout("routes/_saelim.tsx", [
     route("saelim/delivery", "routes/_saelim.delivery.tsx"),
   ]),
+
+  // Resource routes
+  route("api/upload", "routes/api.upload.ts"),
 ] satisfies RouteConfig;

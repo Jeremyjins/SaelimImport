@@ -5,6 +5,7 @@ import { requireGVUser } from "~/lib/auth.server";
 import type { Json } from "~/types/database";
 import type { PILineItem } from "~/types/pi";
 import { lineItemSchema, piSchema } from "~/loaders/pi.schema";
+import { loadContent, handleContentAction } from "~/lib/content.server";
 
 // ── 공통 타입 ──────────────────────────────────────────────
 
@@ -17,32 +18,36 @@ interface DetailLoaderArgs {
 // ── Detail Loader ─────────────────────────────────────────
 
 export async function loader({ request, context, params }: DetailLoaderArgs) {
-  const { supabase, responseHeaders } = await requireGVUser(request, context);
+  const { supabase, user, responseHeaders } = await requireGVUser(request, context);
 
   const idResult = z.string().uuid().safeParse(params.id);
   if (!idResult.success) {
     throw data(null, { status: 404, headers: responseHeaders });
   }
 
-  const { data: pi, error } = await supabase
-    .from("proforma_invoices")
-    .select(
-      "id, pi_no, pi_date, validity, ref_no, supplier_id, buyer_id, po_id, currency, amount, " +
-        "payment_term, delivery_term, loading_port, discharge_port, details, notes, " +
-        "status, created_by, created_at, updated_at, " +
-        "supplier:organizations!supplier_id(id, name_en, name_ko, address_en), " +
-        "buyer:organizations!buyer_id(id, name_en, name_ko, address_en), " +
-        "po:purchase_orders!po_id(po_no)"
-    )
-    .eq("id", idResult.data)
-    .is("deleted_at", null)
-    .single();
+  const [{ data: pi, error }, { content }] = await Promise.all([
+    supabase
+      .from("proforma_invoices")
+      .select(
+        "id, pi_no, pi_date, validity, ref_no, supplier_id, buyer_id, po_id, currency, amount, " +
+          "payment_term, delivery_term, loading_port, discharge_port, details, notes, " +
+          "status, created_by, created_at, updated_at, " +
+          "supplier:organizations!supplier_id(id, name_en, name_ko, address_en), " +
+          "buyer:organizations!buyer_id(id, name_en, name_ko, address_en), " +
+          "po:purchase_orders!po_id(po_no)"
+      )
+      .eq("id", idResult.data)
+      .is("deleted_at", null)
+      .single(),
+    // 콘텐츠 (메모 & 첨부파일)
+    loadContent(supabase, "pi", idResult.data),
+  ]);
 
   if (error || !pi) {
     throw data(null, { status: 404, headers: responseHeaders });
   }
 
-  return data({ pi }, { headers: responseHeaders });
+  return data({ pi, content, userId: user.id }, { headers: responseHeaders });
 }
 
 // ── Edit Loader ───────────────────────────────────────────
@@ -129,6 +134,19 @@ export async function action({ request, context, params }: DetailLoaderArgs) {
 
   const formData = await request.formData();
   const intent = formData.get("_action") as string;
+
+  // ── Content 액션 (메모 & 첨부파일) ─────────────────────
+  if (intent?.startsWith("content_")) {
+    return handleContentAction(
+      supabase,
+      user.id,
+      "pi",
+      id,
+      intent,
+      formData,
+      responseHeaders
+    );
+  }
 
   // ── Update ──────────────────────────────────────────────
   if (intent === "update") {
