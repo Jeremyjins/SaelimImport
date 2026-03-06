@@ -48,4 +48,8 @@ export {
   ImageIcon,
   Undo2,
   Redo2,
+  // Shipping module icons
+  Anchor,
+  FileUp,
+  Container,
 } from "lucide-react";

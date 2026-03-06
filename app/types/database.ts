@@ -769,6 +769,8 @@ export type Database = {
         Row: {
           cntr_no: string | null
           created_at: string | null
+          created_by: string | null
+          deleted_at: string | null
           id: string
           roll_details: Json | null
           roll_no_range: string | null
@@ -780,6 +782,8 @@ export type Database = {
         Insert: {
           cntr_no?: string | null
           created_at?: string | null
+          created_by?: string | null
+          deleted_at?: string | null
           id?: string
           roll_details?: Json | null
           roll_no_range?: string | null
@@ -791,6 +795,8 @@ export type Database = {
         Update: {
           cntr_no?: string | null
           created_at?: string | null
+          created_by?: string | null
+          deleted_at?: string | null
           id?: string
           roll_details?: Json | null
           roll_no_range?: string | null

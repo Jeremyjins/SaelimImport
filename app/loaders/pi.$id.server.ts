@@ -25,29 +25,40 @@ export async function loader({ request, context, params }: DetailLoaderArgs) {
     throw data(null, { status: 404, headers: responseHeaders });
   }
 
-  const [{ data: pi, error }, { content }] = await Promise.all([
-    supabase
-      .from("proforma_invoices")
-      .select(
-        "id, pi_no, pi_date, validity, ref_no, supplier_id, buyer_id, po_id, currency, amount, " +
-          "payment_term, delivery_term, loading_port, discharge_port, details, notes, " +
-          "status, created_by, created_at, updated_at, " +
-          "supplier:organizations!supplier_id(id, name_en, name_ko, address_en), " +
-          "buyer:organizations!buyer_id(id, name_en, name_ko, address_en), " +
-          "po:purchase_orders!po_id(po_no)"
-      )
-      .eq("id", idResult.data)
-      .is("deleted_at", null)
-      .single(),
-    // 콘텐츠 (메모 & 첨부파일)
-    loadContent(supabase, "pi", idResult.data),
-  ]);
+  const [{ data: pi, error }, { content }, { data: linkedShippingDocs }] =
+    await Promise.all([
+      supabase
+        .from("proforma_invoices")
+        .select(
+          "id, pi_no, pi_date, validity, ref_no, supplier_id, buyer_id, po_id, currency, amount, " +
+            "payment_term, delivery_term, loading_port, discharge_port, details, notes, " +
+            "status, created_by, created_at, updated_at, " +
+            "supplier:organizations!supplier_id(id, name_en, name_ko, address_en), " +
+            "buyer:organizations!buyer_id(id, name_en, name_ko, address_en), " +
+            "po:purchase_orders!po_id(po_no)"
+        )
+        .eq("id", idResult.data)
+        .is("deleted_at", null)
+        .single(),
+      // 콘텐츠 (메모 & 첨부파일)
+      loadContent(supabase, "pi", idResult.data),
+      // 연결 선적서류
+      supabase
+        .from("shipping_documents")
+        .select("id, ci_no, pl_no, ci_date, status, vessel")
+        .eq("pi_id", idResult.data)
+        .is("deleted_at", null)
+        .order("ci_date", { ascending: false }),
+    ]);
 
   if (error || !pi) {
     throw data(null, { status: 404, headers: responseHeaders });
   }
 
-  return data({ pi, content, userId: user.id }, { headers: responseHeaders });
+  return data(
+    { pi, content, userId: user.id, linkedShippingDocs: linkedShippingDocs ?? [] },
+    { headers: responseHeaders }
+  );
 }
 
 // ── Edit Loader ───────────────────────────────────────────

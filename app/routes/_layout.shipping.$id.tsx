@@ -1,22 +1,13 @@
 import { useLoaderData, useFetcher, Link } from "react-router";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Header } from "~/components/layout/header";
 import { PageContainer } from "~/components/layout/page-container";
 import { Button } from "~/components/ui/button";
-import { Badge } from "~/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { DocStatusBadge } from "~/components/shared/doc-status-badge";
-import { PIDetailInfo } from "~/components/pi/pi-detail-info";
-import { PIDetailItems } from "~/components/pi/pi-detail-items";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
-import { formatDate } from "~/lib/format";
+import { ShippingDetailInfo } from "~/components/shipping/shipping-detail-info";
+import { ShippingDetailItems } from "~/components/shipping/shipping-detail-items";
+import { ShippingWeightSummary } from "~/components/shipping/shipping-weight-summary";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,34 +31,26 @@ import {
   Copy,
   Trash2,
   Loader2,
-  Ship,
 } from "~/components/ui/icons";
-import { loader, action } from "~/loaders/pi.$id.server";
-import type { PIWithOrgs } from "~/types/pi";
+import { loader, action } from "~/loaders/shipping.$id.server";
+import type { ShippingWithOrgs } from "~/types/shipping";
 import type { ContentItem } from "~/types/content";
-import type { DocStatus } from "~/types/shipping";
+import { formatDate } from "~/lib/format";
 import { ContentSection } from "~/components/content/content-section";
+import { StuffingSection } from "~/components/shipping/stuffing-section";
+import { toast } from "sonner";
 
 export { loader, action };
 
-interface LinkedShippingDoc {
-  id: string;
-  ci_no: string;
-  pl_no: string;
-  ci_date: string;
-  status: DocStatus;
-  vessel: string | null;
-}
-
-export default function PIDetailPage() {
-  const { pi, content, userId, linkedShippingDocs } = useLoaderData<typeof loader>() as unknown as {
-    pi: PIWithOrgs;
+export default function ShippingDetailPage() {
+  const { shipping, content, userId } = useLoaderData<typeof loader>() as unknown as {
+    shipping: ShippingWithOrgs;
     content: ContentItem | null;
     userId: string;
-    linkedShippingDocs: LinkedShippingDoc[];
   };
   const fetcher = useFetcher();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const prevFetcherState = useRef(fetcher.state);
 
   const fetcherError = (fetcher.data as { error?: string } | null)?.error;
   const currentAction = fetcher.formData?.get("_action") as string | null;
@@ -75,17 +58,36 @@ export default function PIDetailPage() {
   const isCloning = fetcher.state !== "idle" && currentAction === "clone";
   const isDeleting = fetcher.state !== "idle" && currentAction === "delete";
 
+  // Toast for stuffing actions
+  useEffect(() => {
+    if (prevFetcherState.current !== "idle" && fetcher.state === "idle") {
+      const result = fetcher.data as { success?: boolean; error?: string; count?: number } | null;
+      const action = (fetcher.formData as unknown as FormData | null)?.get("_action") as string | null;
+      if (!result || !action?.startsWith("stuffing_")) return;
+      if (result.success) {
+        if (action === "stuffing_create") toast.success("컨테이너가 추가되었습니다.");
+        else if (action === "stuffing_update") toast.success("컨테이너가 수정되었습니다.");
+        else if (action === "stuffing_delete") toast.success("컨테이너가 삭제되었습니다.");
+        else if (action === "stuffing_csv")
+          toast.success(`CSV 업로드 완료. ${result.count ?? 0}개 롤이 업로드되었습니다.`);
+      } else if (result.error) {
+        toast.error(result.error);
+      }
+    }
+    prevFetcherState.current = fetcher.state;
+  }, [fetcher.state, fetcher.data, fetcher.formData]);
+
   // Optimistic status toggle
   const optimisticStatus =
     isToggling
-      ? pi.status === "process"
+      ? shipping.status === "process"
         ? "complete"
         : "process"
-      : pi.status;
+      : shipping.status;
 
   function handleToggle() {
     fetcher.submit(
-      { _action: "toggle_status", current_status: pi.status },
+      { _action: "toggle_status", current_status: shipping.status },
       { method: "post" }
     );
   }
@@ -101,7 +103,7 @@ export default function PIDetailPage() {
 
   return (
     <>
-      <Header title={pi.pi_no} backTo="/pi">
+      <Header title={`${shipping.ci_no} / ${shipping.pl_no}`} backTo="/shipping">
         <div className="flex items-center gap-2">
           <DocStatusBadge status={optimisticStatus} />
 
@@ -130,7 +132,7 @@ export default function PIDetailPage() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
-                <Link to={`/pi/${pi.id}/edit`}>
+                <Link to={`/shipping/${shipping.id}/edit`}>
                   <Pencil className="mr-2 h-4 w-4" />
                   수정
                 </Link>
@@ -142,13 +144,6 @@ export default function PIDetailPage() {
                   <Copy className="mr-2 h-4 w-4" />
                 )}
                 복제
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to={`/shipping/new?from_pi=${pi.id}`}>
-                  <Ship className="mr-2 h-4 w-4" />
-                  선적서류 작성
-                </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -171,100 +166,53 @@ export default function PIDetailPage() {
             </div>
           )}
 
-          {/* 기본 정보 + 거래 조건 */}
-          <PIDetailInfo pi={pi} />
+          {/* 기본정보 + 거래조건 + 선적정보 */}
+          <ShippingDetailInfo shipping={shipping} />
 
           {/* 품목 내역 */}
-          <PIDetailItems
-            items={pi.details}
-            currency={pi.currency}
-            totalAmount={pi.amount}
+          <ShippingDetailItems
+            items={shipping.details}
+            currency={shipping.currency}
+            totalAmount={shipping.amount}
+          />
+
+          {/* 중량 / 포장 */}
+          <ShippingWeightSummary
+            grossWeight={shipping.gross_weight}
+            netWeight={shipping.net_weight}
+            packageNo={shipping.package_no}
+          />
+
+          {/* 스터핑 리스트 */}
+          <StuffingSection
+            shippingDocId={shipping.id}
+            stuffingLists={shipping.stuffing_lists ?? []}
           />
 
           {/* 비고 */}
-          {pi.notes && (
+          {shipping.notes && (
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">비고</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm whitespace-pre-wrap">{pi.notes}</p>
+                <p className="text-sm whitespace-pre-wrap">{shipping.notes}</p>
               </CardContent>
             </Card>
           )}
 
-          {/* 연결 선적서류 */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-base">연결 선적서류</CardTitle>
-              <Link
-                to={`/shipping/new?from_pi=${pi.id}`}
-                className="text-xs text-blue-600 hover:underline flex items-center gap-1"
-              >
-                <Ship className="h-3 w-3" />
-                선적서류 작성
-              </Link>
-            </CardHeader>
-            <CardContent className="p-0 pb-0">
-              {linkedShippingDocs.length === 0 ? (
-                <p className="text-sm text-zinc-400 px-6 pb-4">연결된 선적서류가 없습니다.</p>
-              ) : (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="pl-6">CI / PL 번호</TableHead>
-                        <TableHead>CI 일자</TableHead>
-                        <TableHead className="hidden sm:table-cell">선박명</TableHead>
-                        <TableHead>상태</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {linkedShippingDocs.map((doc) => (
-                        <TableRow key={doc.id}>
-                          <TableCell className="pl-6">
-                            <Link
-                              to={`/shipping/${doc.id}`}
-                              className="text-sm font-medium text-blue-600 hover:underline"
-                            >
-                              <div>{doc.ci_no}</div>
-                              <div className="text-xs text-zinc-400">{doc.pl_no}</div>
-                            </Link>
-                          </TableCell>
-                          <TableCell className="text-sm">
-                            {formatDate(doc.ci_date)}
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell text-sm">
-                            {doc.vessel ?? "-"}
-                          </TableCell>
-                          <TableCell>
-                            <Badge
-                              variant={doc.status === "complete" ? "secondary" : "default"}
-                            >
-                              {doc.status === "complete" ? "완료" : "진행"}
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
           {/* 메모 & 첨부파일 & 댓글 */}
           <ContentSection
             content={content}
-            contentType="pi"
-            parentId={pi.id}
+            contentType="shipping"
+            parentId={shipping.id}
             currentUserId={userId}
           />
 
           {/* 하단 메타 정보 */}
           <div className="flex gap-4 text-xs text-zinc-400">
-            <span>작성: {formatDate(pi.created_at)}</span>
-            <span>수정: {formatDate(pi.updated_at)}</span>
+            <span>작성: {formatDate(shipping.created_at)}</span>
+            <span>수정: {formatDate(shipping.updated_at)}</span>
           </div>
         </div>
       </PageContainer>
@@ -273,9 +221,10 @@ export default function PIDetailPage() {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>PI를 삭제하시겠습니까?</AlertDialogTitle>
+            <AlertDialogTitle>선적서류를 삭제하시겠습니까?</AlertDialogTitle>
             <AlertDialogDescription>
-              {pi.pi_no}를 삭제합니다. 연결된 배송 정보도 함께 삭제되며 복구할 수 없습니다.
+              {shipping.ci_no} / {shipping.pl_no}를 삭제합니다. 연결된 배송 정보의
+              선적서류 연결도 해제되며 복구할 수 없습니다.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
