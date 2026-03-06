@@ -3,8 +3,8 @@ import { z } from "zod";
 import type { AppLoadContext } from "react-router";
 import { requireGVUser } from "~/lib/auth.server";
 import type { Json } from "~/types/database";
-import type { POLineItem } from "~/types/po";
-import { lineItemSchema, poSchema } from "~/loaders/po.schema";
+import type { PILineItem } from "~/types/pi";
+import { lineItemSchema, piSchema } from "~/loaders/pi.schema";
 
 // ── 공통 타입 ──────────────────────────────────────────────
 
@@ -24,38 +24,30 @@ export async function loader({ request, context, params }: DetailLoaderArgs) {
     throw data(null, { status: 404, headers: responseHeaders });
   }
 
-  const [{ data: po, error }, { data: pis }] = await Promise.all([
-    supabase
-      .from("purchase_orders")
-      .select(
-        "id, po_no, po_date, validity, ref_no, supplier_id, buyer_id, currency, amount, " +
-          "payment_term, delivery_term, loading_port, discharge_port, details, notes, " +
-          "status, created_by, created_at, updated_at, " +
-          "supplier:organizations!supplier_id(id, name_en, name_ko, address_en), " +
-          "buyer:organizations!buyer_id(id, name_en, name_ko, address_en)"
-      )
-      .eq("id", idResult.data)
-      .is("deleted_at", null)
-      .single(),
-    // 연결된 PI 목록
-    supabase
-      .from("proforma_invoices")
-      .select("id, pi_no, pi_date, status, currency, amount")
-      .eq("po_id", idResult.data)
-      .is("deleted_at", null)
-      .order("pi_date", { ascending: false }),
-  ]);
+  const { data: pi, error } = await supabase
+    .from("proforma_invoices")
+    .select(
+      "id, pi_no, pi_date, validity, ref_no, supplier_id, buyer_id, po_id, currency, amount, " +
+        "payment_term, delivery_term, loading_port, discharge_port, details, notes, " +
+        "status, created_by, created_at, updated_at, " +
+        "supplier:organizations!supplier_id(id, name_en, name_ko, address_en), " +
+        "buyer:organizations!buyer_id(id, name_en, name_ko, address_en), " +
+        "po:purchase_orders!po_id(po_no)"
+    )
+    .eq("id", idResult.data)
+    .is("deleted_at", null)
+    .single();
 
-  if (error || !po) {
+  if (error || !pi) {
     throw data(null, { status: 404, headers: responseHeaders });
   }
 
-  return data({ po, pis: pis ?? [] }, { headers: responseHeaders });
+  return data({ pi }, { headers: responseHeaders });
 }
 
 // ── Edit Loader ───────────────────────────────────────────
 
-export async function poEditLoader({
+export async function piEditLoader({
   request,
   context,
   params,
@@ -68,30 +60,32 @@ export async function poEditLoader({
   }
 
   const [
-    { data: po, error },
+    { data: pi, error },
     { data: suppliers },
     { data: buyers },
     { data: products },
   ] = await Promise.all([
     supabase
-      .from("purchase_orders")
+      .from("proforma_invoices")
       .select(
-        "id, po_no, po_date, validity, ref_no, supplier_id, buyer_id, currency, " +
+        "id, pi_no, pi_date, validity, ref_no, supplier_id, buyer_id, po_id, currency, " +
           "payment_term, delivery_term, loading_port, discharge_port, details, notes, status"
       )
       .eq("id", idResult.data)
       .is("deleted_at", null)
       .single(),
+    // PI supplier: GV (type='seller')
     supabase
       .from("organizations")
       .select("id, name_en, name_ko")
-      .eq("type", "supplier")
+      .eq("type", "seller")
       .is("deleted_at", null)
       .order("name_en"),
+    // PI buyer: Saelim (type='buyer')
     supabase
       .from("organizations")
       .select("id, name_en, name_ko")
-      .in("type", ["seller", "buyer"])
+      .eq("type", "buyer")
       .is("deleted_at", null)
       .order("name_en"),
     supabase
@@ -101,13 +95,13 @@ export async function poEditLoader({
       .order("name"),
   ]);
 
-  if (error || !po) {
+  if (error || !pi) {
     throw data(null, { status: 404, headers: responseHeaders });
   }
 
   return data(
     {
-      po,
+      pi,
       suppliers: suppliers ?? [],
       buyers: buyers ?? [],
       products: products ?? [],
@@ -138,9 +132,9 @@ export async function action({ request, context, params }: DetailLoaderArgs) {
 
   // ── Update ──────────────────────────────────────────────
   if (intent === "update") {
-    // 완료 PO 수정 차단 (C2: DB 오류 시 수정 진행 차단)
+    // 완료 PI 수정 차단
     const { data: existing, error: statusError } = await supabase
-      .from("purchase_orders")
+      .from("proforma_invoices")
       .select("status")
       .eq("id", id)
       .is("deleted_at", null)
@@ -148,7 +142,7 @@ export async function action({ request, context, params }: DetailLoaderArgs) {
 
     if (statusError || !existing) {
       return data(
-        { success: false, error: "PO를 찾을 수 없습니다." },
+        { success: false, error: "PI를 찾을 수 없습니다." },
         { status: 404, headers: responseHeaders }
       );
     }
@@ -158,7 +152,7 @@ export async function action({ request, context, params }: DetailLoaderArgs) {
         {
           success: false,
           error:
-            "완료 처리된 PO는 수정할 수 없습니다. 상태를 변경 후 수정하세요.",
+            "완료 처리된 PI는 수정할 수 없습니다. 상태를 변경 후 수정하세요.",
         },
         { status: 400, headers: responseHeaders }
       );
@@ -194,7 +188,7 @@ export async function action({ request, context, params }: DetailLoaderArgs) {
     }
 
     const raw = Object.fromEntries(formData);
-    const parsed = poSchema.safeParse(raw);
+    const parsed = piSchema.safeParse(raw);
     if (!parsed.success) {
       return data(
         {
@@ -205,7 +199,7 @@ export async function action({ request, context, params }: DetailLoaderArgs) {
       );
     }
 
-    // 활성 org 검증 (V1: 비활성 org 참조 차단)
+    // 활성 org 검증
     const [{ count: supplierCount }, { count: buyerCount }] = await Promise.all(
       [
         supabase
@@ -220,9 +214,10 @@ export async function action({ request, context, params }: DetailLoaderArgs) {
           .is("deleted_at", null),
       ]
     );
+
     if (!supplierCount) {
       return data(
-        { success: false, error: "선택한 공급업체가 유효하지 않습니다." },
+        { success: false, error: "선택한 판매업체가 유효하지 않습니다." },
         { status: 400, headers: responseHeaders }
       );
     }
@@ -234,7 +229,7 @@ export async function action({ request, context, params }: DetailLoaderArgs) {
     }
 
     // Amount 서버사이드 재계산
-    const recalculated: POLineItem[] = detailsResult.data.map((item) => ({
+    const recalculated: PILineItem[] = detailsResult.data.map((item) => ({
       ...item,
       amount: Math.round(item.quantity_kg * item.unit_price * 100) / 100,
     }));
@@ -243,12 +238,32 @@ export async function action({ request, context, params }: DetailLoaderArgs) {
         recalculated.reduce((sum, item) => sum + item.amount, 0) * 100
       ) / 100;
 
+    const poIdRaw = parsed.data.po_id;
+    const resolvedPoId = poIdRaw && poIdRaw !== "" ? poIdRaw : null;
+
+    // po_id 유효성 검증 (있을 경우) — soft-deleted PO 참조 차단
+    if (resolvedPoId) {
+      const { count: poCount } = await supabase
+        .from("purchase_orders")
+        .select("id", { count: "exact", head: true })
+        .eq("id", resolvedPoId)
+        .is("deleted_at", null);
+
+      if (!poCount) {
+        return data(
+          { success: false, error: "참조한 PO를 찾을 수 없습니다." },
+          { status: 400, headers: responseHeaders }
+        );
+      }
+    }
+
     const { error: updateError } = await supabase
-      .from("purchase_orders")
+      .from("proforma_invoices")
       .update({
-        po_date: parsed.data.po_date,
+        pi_date: parsed.data.pi_date,
         validity: parsed.data.validity || null,
         ref_no: parsed.data.ref_no || null,
+        po_id: resolvedPoId,
         supplier_id: parsed.data.supplier_id,
         buyer_id: parsed.data.buyer_id,
         currency: parsed.data.currency,
@@ -271,13 +286,13 @@ export async function action({ request, context, params }: DetailLoaderArgs) {
       );
     }
 
-    throw redirect(`/po/${id}`, { headers: responseHeaders });
+    throw redirect(`/pi/${id}`, { headers: responseHeaders });
   }
 
   // ── Delete ──────────────────────────────────────────────
   if (intent === "delete") {
     const { error: deleteError } = await supabase
-      .from("purchase_orders")
+      .from("proforma_invoices")
       .update({ deleted_at: new Date().toISOString() })
       .eq("id", id)
       .is("deleted_at", null);
@@ -289,13 +304,27 @@ export async function action({ request, context, params }: DetailLoaderArgs) {
       );
     }
 
-    throw redirect("/po", { headers: responseHeaders });
+    // 연결 Delivery soft delete
+    const { error: deliveryDeleteError } = await supabase
+      .from("deliveries")
+      .update({ deleted_at: new Date().toISOString() })
+      .eq("pi_id", id)
+      .is("deleted_at", null);
+
+    if (deliveryDeleteError) {
+      return data(
+        { success: false, error: "연결된 배송 정보 삭제 중 오류가 발생했습니다." },
+        { status: 500, headers: responseHeaders }
+      );
+    }
+
+    throw redirect("/pi", { headers: responseHeaders });
   }
 
   // ── Clone ───────────────────────────────────────────────
   if (intent === "clone") {
     const { data: originalRaw, error: fetchError } = await supabase
-      .from("purchase_orders")
+      .from("proforma_invoices")
       .select(
         "validity, ref_no, supplier_id, buyer_id, currency, amount, " +
           "payment_term, delivery_term, loading_port, discharge_port, details, notes"
@@ -320,31 +349,32 @@ export async function action({ request, context, params }: DetailLoaderArgs) {
 
     if (fetchError || !originalRaw || !original) {
       return data(
-        { success: false, error: "복제할 PO를 찾을 수 없습니다." },
+        { success: false, error: "복제할 PI를 찾을 수 없습니다." },
         { status: 404, headers: responseHeaders }
       );
     }
 
     const today = new Date().toISOString().split("T")[0];
-    const { data: poNo, error: rpcError } = await supabase.rpc(
+    const { data: piNo, error: rpcError } = await supabase.rpc(
       "generate_doc_number",
-      { doc_type: "PO", ref_date: today }
+      { doc_type: "PI", ref_date: today }
     );
 
-    if (rpcError || !poNo) {
+    if (rpcError || !piNo) {
       return data(
-        { success: false, error: "PO 번호 생성에 실패했습니다." },
+        { success: false, error: "PI 번호 생성에 실패했습니다." },
         { status: 500, headers: responseHeaders }
       );
     }
 
     const { data: cloned, error: insertError } = await supabase
-      .from("purchase_orders")
+      .from("proforma_invoices")
       .insert({
-        po_no: poNo,
-        po_date: today,
+        pi_no: piNo,
+        pi_date: today,
         validity: original.validity,
         ref_no: original.ref_no,
+        po_id: null, // 클론은 PO 참조 초기화
         supplier_id: original.supplier_id,
         buyer_id: original.buyer_id,
         currency: original.currency,
@@ -368,14 +398,30 @@ export async function action({ request, context, params }: DetailLoaderArgs) {
       );
     }
 
-    throw redirect(`/po/${cloned.id}/edit`, { headers: responseHeaders });
+    // Delivery 자동 생성
+    const { error: deliveryError } = await supabase
+      .from("deliveries")
+      .insert({ pi_id: cloned.id });
+
+    if (deliveryError) {
+      await supabase
+        .from("proforma_invoices")
+        .update({ deleted_at: new Date().toISOString() })
+        .eq("id", cloned.id);
+
+      return data(
+        { success: false, error: "Delivery 생성 중 오류가 발생했습니다." },
+        { status: 500, headers: responseHeaders }
+      );
+    }
+
+    throw redirect(`/pi/${cloned.id}/edit`, { headers: responseHeaders });
   }
 
   // ── Toggle Status ───────────────────────────────────────
   if (intent === "toggle_status") {
-    // V2: 클라이언트 current_status 신뢰 대신 DB에서 직접 조회
     const { data: current, error: fetchStatusError } = await supabase
-      .from("purchase_orders")
+      .from("proforma_invoices")
       .select("status")
       .eq("id", id)
       .is("deleted_at", null)
@@ -383,7 +429,7 @@ export async function action({ request, context, params }: DetailLoaderArgs) {
 
     if (fetchStatusError || !current) {
       return data(
-        { success: false, error: "PO를 찾을 수 없습니다." },
+        { success: false, error: "PI를 찾을 수 없습니다." },
         { status: 404, headers: responseHeaders }
       );
     }
@@ -391,7 +437,7 @@ export async function action({ request, context, params }: DetailLoaderArgs) {
     const newStatus = current.status === "process" ? "complete" : "process";
 
     const { error: toggleError } = await supabase
-      .from("purchase_orders")
+      .from("proforma_invoices")
       .update({
         status: newStatus,
         updated_at: new Date().toISOString(),

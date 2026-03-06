@@ -5,8 +5,8 @@ import { PageContainer } from "~/components/layout/page-container";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { DocStatusBadge } from "~/components/shared/doc-status-badge";
-import { PODetailInfo } from "~/components/po/po-detail-info";
-import { PODetailItems } from "~/components/po/po-detail-items";
+import { PIDetailInfo } from "~/components/pi/pi-detail-info";
+import { PIDetailItems } from "~/components/pi/pi-detail-items";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,29 +30,15 @@ import {
   Copy,
   Trash2,
   Loader2,
-  FileText,
 } from "~/components/ui/icons";
-import { loader, action } from "~/loaders/po.$id.server";
-import type { POWithOrgs } from "~/types/po";
-import { formatDate, formatCurrency } from "~/lib/format";
-import type { DocStatus } from "~/types/common";
+import { loader, action } from "~/loaders/pi.$id.server";
+import type { PIWithOrgs } from "~/types/pi";
+import { formatDate } from "~/lib/format";
 
 export { loader, action };
 
-interface ConnectedPI {
-  id: string;
-  pi_no: string;
-  pi_date: string;
-  status: DocStatus;
-  currency: string;
-  amount: number | null;
-}
-
-export default function PODetailPage() {
-  const { po, pis } = useLoaderData<typeof loader>() as unknown as {
-    po: POWithOrgs;
-    pis: ConnectedPI[];
-  };
+export default function PIDetailPage() {
+  const { pi } = useLoaderData<typeof loader>() as unknown as { pi: PIWithOrgs };
   const fetcher = useFetcher();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
@@ -65,14 +51,14 @@ export default function PODetailPage() {
   // Optimistic status toggle
   const optimisticStatus =
     isToggling
-      ? po.status === "process"
+      ? pi.status === "process"
         ? "complete"
         : "process"
-      : po.status;
+      : pi.status;
 
   function handleToggle() {
     fetcher.submit(
-      { _action: "toggle_status", current_status: po.status },
+      { _action: "toggle_status", current_status: pi.status },
       { method: "post" }
     );
   }
@@ -88,7 +74,7 @@ export default function PODetailPage() {
 
   return (
     <>
-      <Header title={po.po_no} backTo="/po">
+      <Header title={pi.pi_no} backTo="/pi">
         <div className="flex items-center gap-2">
           <DocStatusBadge status={optimisticStatus} />
 
@@ -117,7 +103,7 @@ export default function PODetailPage() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
-                <Link to={`/po/${po.id}/edit`}>
+                <Link to={`/pi/${pi.id}/edit`}>
                   <Pencil className="mr-2 h-4 w-4" />
                   수정
                 </Link>
@@ -129,12 +115,6 @@ export default function PODetailPage() {
                   <Copy className="mr-2 h-4 w-4" />
                 )}
                 복제
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to={`/pi/new?from_po=${po.id}`}>
-                  <FileText className="mr-2 h-4 w-4" />
-                  PI 작성
-                </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -156,63 +136,33 @@ export default function PODetailPage() {
               {fetcherError}
             </div>
           )}
+
           {/* 기본 정보 + 거래 조건 */}
-          <PODetailInfo po={po} />
+          <PIDetailInfo pi={pi} />
 
           {/* 품목 내역 */}
-          <PODetailItems
-            items={po.details}
-            currency={po.currency}
-            totalAmount={po.amount}
+          <PIDetailItems
+            items={pi.details}
+            currency={pi.currency}
+            totalAmount={pi.amount}
           />
 
           {/* 비고 */}
-          {po.notes && (
+          {pi.notes && (
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">비고</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm whitespace-pre-wrap">{po.notes}</p>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* 연결된 PI 목록 */}
-          {pis.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">연결된 견적서 (PI)</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0 pb-0">
-                <div className="flex flex-col divide-y">
-                  {pis.map((pi) => (
-                    <Link
-                      key={pi.id}
-                      to={`/pi/${pi.id}`}
-                      className="flex items-center justify-between px-6 py-3 hover:bg-zinc-50 transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-sm font-medium">{pi.pi_no}</span>
-                        <DocStatusBadge status={pi.status} />
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-zinc-500">
-                        <span>{formatDate(pi.pi_date)}</span>
-                        <span className="tabular-nums font-medium text-zinc-700">
-                          {formatCurrency(pi.amount, pi.currency)}
-                        </span>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
+                <p className="text-sm whitespace-pre-wrap">{pi.notes}</p>
               </CardContent>
             </Card>
           )}
 
           {/* 하단 메타 정보 */}
           <div className="flex gap-4 text-xs text-zinc-400">
-            <span>작성: {formatDate(po.created_at)}</span>
-            <span>수정: {formatDate(po.updated_at)}</span>
+            <span>작성: {formatDate(pi.created_at)}</span>
+            <span>수정: {formatDate(pi.updated_at)}</span>
           </div>
         </div>
       </PageContainer>
@@ -221,9 +171,9 @@ export default function PODetailPage() {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>PO를 삭제하시겠습니까?</AlertDialogTitle>
+            <AlertDialogTitle>PI를 삭제하시겠습니까?</AlertDialogTitle>
             <AlertDialogDescription>
-              {po.po_no}를 삭제합니다. 삭제된 PO는 복구할 수 없습니다.
+              {pi.pi_no}를 삭제합니다. 연결된 배송 정보도 함께 삭제되며 복구할 수 없습니다.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

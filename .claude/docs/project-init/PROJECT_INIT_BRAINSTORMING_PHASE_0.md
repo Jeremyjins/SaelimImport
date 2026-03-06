@@ -2,7 +2,7 @@
 
 **Date:** 2026-03-06
 **Status:** Phase 0 상세 설계 완료
-**참조:** [종합 브레인스토밍](PROJECT_INIT_BRAINSTORMING.md)
+**참조:** [종합 브레인스토밍](../PROJECT_INIT_BRAINSTORMING.md)
 
 ---
 
@@ -987,11 +987,11 @@ workers/app.ts                               # Env 타입 추가
 
 | Agent | File | 주요 내용 |
 |-------|------|----------|
-| Architect | [architect.md](brainstorm/phase0/architect.md) | 로드맵, 의존성, MCP 전략, DoD |
-| Frontend Dev | [frontend.md](brainstorm/phase0/frontend.md) | Shadcn 설정, 레이아웃, 라우팅, 폰트 |
-| Backend Dev | [backend.md](brainstorm/phase0/backend.md) | DB 스키마, RLS, Auth 구현 |
-| Security | [security.md](brainstorm/phase0/security.md) | 보안 체크리스트, 위협 모델 |
-| Researcher | [researcher.md](brainstorm/phase0/researcher.md) | 최신 기술 패턴, 라이브러리 조사 |
+| Architect | [architect.md](../brainstorm/phase0/architect.md) | 로드맵, 의존성, MCP 전략, DoD |
+| Frontend Dev | [frontend.md](../brainstorm/phase0/frontend.md) | Shadcn 설정, 레이아웃, 라우팅, 폰트 |
+| Backend Dev | [backend.md](../brainstorm/phase0/backend.md) | DB 스키마, RLS, Auth 구현 |
+| Security | [security.md](../brainstorm/phase0/security.md) | 보안 체크리스트, 위협 모델 |
+| Researcher | [researcher.md](../brainstorm/phase0/researcher.md) | 최신 기술 패턴, 라이브러리 조사 |
 
 ---
 
