@@ -10,11 +10,11 @@
 
 | # | Role | File | Scope |
 |---|------|------|-------|
-| 1 | **Architect** | [architect-notes.md](brainstorm/phase8/architect-notes.md) | DB 스키마, 데이터 흐름, 라우트 구조, 구현 단계 |
-| 2 | **Frontend Dev** | [frontend-notes.md](brainstorm/phase8/frontend-notes.md) | GV/Saelim UI, 컴포넌트 구조, 반응형 디자인 |
-| 3 | **Backend Dev** | [backend-notes.md](brainstorm/phase8/backend-notes.md) | Loader/Action, Sync 로직, Zod 스키마, RLS |
-| 4 | **Security Reviewer** | [security-notes.md](brainstorm/phase8/security-notes.md) | 데이터 격리, RLS, 변경요청 보안, 공격 벡터 |
-| 5 | **Researcher** | [research-notes.md](brainstorm/phase8/research-notes.md) | UX 패턴, 듀얼 레이아웃, 날짜 선택, 최적 UI |
+| 1 | **Architect** | [architect-notes.md](../brainstorm/phase8/architect-notes.md) | DB 스키마, 데이터 흐름, 라우트 구조, 구현 단계 |
+| 2 | **Frontend Dev** | [frontend-notes.md](../brainstorm/phase8/frontend-notes.md) | GV/Saelim UI, 컴포넌트 구조, 반응형 디자인 |
+| 3 | **Backend Dev** | [backend-notes.md](../brainstorm/phase8/backend-notes.md) | Loader/Action, Sync 로직, Zod 스키마, RLS |
+| 4 | **Security Reviewer** | [security-notes.md](../brainstorm/phase8/security-notes.md) | 데이터 격리, RLS, 변경요청 보안, 공격 벡터 |
+| 5 | **Researcher** | [research-notes.md](../brainstorm/phase8/research-notes.md) | UX 패턴, 듀얼 레이아웃, 날짜 선택, 최적 UI |
 
 **제외:** Tester (코드 없음), Perf-analyzer (시기상조), Code-reviewer (코드 없음)
 
@@ -395,8 +395,8 @@ app/types/database.ts                   # 마이그레이션 후 재생성
 ## 13. 상세 노트 참조
 
 각 팀원별 상세 분석:
-- [Architect Notes](brainstorm/phase8/architect-notes.md) - 스키마, 데이터 흐름, 구현 단계
-- [Frontend Notes](brainstorm/phase8/frontend-notes.md) - UI 설계, 컴포넌트, 반응형
-- [Backend Notes](brainstorm/phase8/backend-notes.md) - Loader/Action 코드, Sync, RLS
-- [Security Notes](brainstorm/phase8/security-notes.md) - 보안 체크리스트, 공격 벡터
-- [Research Notes](brainstorm/phase8/research-notes.md) - UX 패턴, 기술 조사
+- [Architect Notes](../brainstorm/phase8/architect-notes.md) - 스키마, 데이터 흐름, 구현 단계
+- [Frontend Notes](../brainstorm/phase8/frontend-notes.md) - UI 설계, 컴포넌트, 반응형
+- [Backend Notes](../brainstorm/phase8/backend-notes.md) - Loader/Action 코드, Sync, RLS
+- [Security Notes](../brainstorm/phase8/security-notes.md) - 보안 체크리스트, 공격 벡터
+- [Research Notes](../brainstorm/phase8/research-notes.md) - UX 패턴, 기술 조사

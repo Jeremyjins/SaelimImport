@@ -41,9 +41,11 @@ import {
   Trash2,
   Loader2,
   Ship,
+  FileDown,
 } from "~/components/ui/icons";
 import { loader, action } from "~/loaders/pi.$id.server";
 import type { PIWithOrgs } from "~/types/pi";
+import { usePDFDownload } from "~/hooks/use-pdf-download";
 import type { ContentItem } from "~/types/content";
 import type { DocStatus } from "~/types/shipping";
 import { ContentSection } from "~/components/content/content-section";
@@ -68,6 +70,17 @@ export default function PIDetailPage() {
   };
   const fetcher = useFetcher();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const { loading: isPDFLoading, download: downloadPDF } = usePDFDownload();
+
+  async function handlePDFDownload() {
+    await downloadPDF(async () => {
+      const [{ pdf }, { PIDocument }] = await Promise.all([
+        import("@react-pdf/renderer"),
+        import("~/components/pdf/pi-document"),
+      ]);
+      return pdf(<PIDocument data={pi} />).toBlob();
+    }, `PI_${pi.pi_no}.pdf`);
+  }
 
   const fetcherError = (fetcher.data as { error?: string } | null)?.error;
   const currentAction = fetcher.formData?.get("_action") as string | null;
@@ -149,6 +162,17 @@ export default function PIDetailPage() {
                   <Ship className="mr-2 h-4 w-4" />
                   선적서류 작성
                 </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={handlePDFDownload}
+                disabled={isPDFLoading}
+              >
+                {isPDFLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <FileDown className="mr-2 h-4 w-4" />
+                )}
+                PDF 다운로드
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem

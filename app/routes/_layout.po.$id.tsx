@@ -31,9 +31,11 @@ import {
   Trash2,
   Loader2,
   FileText,
+  FileDown,
 } from "~/components/ui/icons";
 import { loader, action } from "~/loaders/po.$id.server";
 import type { POWithOrgs } from "~/types/po";
+import { usePDFDownload } from "~/hooks/use-pdf-download";
 import type { ContentItem } from "~/types/content";
 import { formatDate, formatCurrency } from "~/lib/format";
 import type { DocStatus } from "~/types/common";
@@ -59,6 +61,17 @@ export default function PODetailPage() {
   };
   const fetcher = useFetcher();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const { loading: isPDFLoading, download: downloadPDF } = usePDFDownload();
+
+  async function handlePDFDownload() {
+    await downloadPDF(async () => {
+      const [{ pdf }, { PODocument }] = await Promise.all([
+        import("@react-pdf/renderer"),
+        import("~/components/pdf/po-document"),
+      ]);
+      return pdf(<PODocument data={po} />).toBlob();
+    }, `PO_${po.po_no}.pdf`);
+  }
 
   const fetcherError = (fetcher.data as { error?: string } | null)?.error;
   const currentAction = fetcher.formData?.get("_action") as string | null;
@@ -139,6 +152,18 @@ export default function PODetailPage() {
                   <FileText className="mr-2 h-4 w-4" />
                   PI 작성
                 </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={handlePDFDownload}
+                disabled={isPDFLoading}
+              >
+                {isPDFLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <FileDown className="mr-2 h-4 w-4" />
+                )}
+                PDF 다운로드
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem

@@ -32,11 +32,13 @@ import {
   Trash2,
   Loader2,
   Receipt,
+  FileDown,
 } from "~/components/ui/icons";
 import { loader, action } from "~/loaders/shipping.$id.server";
 import type { ShippingWithOrgs } from "~/types/shipping";
 import type { ContentItem } from "~/types/content";
 import { formatDate } from "~/lib/format";
+import { usePDFDownload } from "~/hooks/use-pdf-download";
 import { ContentSection } from "~/components/content/content-section";
 import { StuffingSection } from "~/components/shipping/stuffing-section";
 import { toast } from "sonner";
@@ -52,6 +54,37 @@ export default function ShippingDetailPage() {
   const fetcher = useFetcher();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const prevFetcherState = useRef(fetcher.state);
+  const { loading: isPDFLoading, download: downloadPDF } = usePDFDownload();
+
+  async function handleCIDownload() {
+    await downloadPDF(async () => {
+      const [{ pdf }, { CIDocument }] = await Promise.all([
+        import("@react-pdf/renderer"),
+        import("~/components/pdf/ci-document"),
+      ]);
+      return pdf(<CIDocument data={shipping} />).toBlob();
+    }, `CI_${shipping.ci_no}.pdf`);
+  }
+
+  async function handlePLDownload() {
+    await downloadPDF(async () => {
+      const [{ pdf }, { PLDocument }] = await Promise.all([
+        import("@react-pdf/renderer"),
+        import("~/components/pdf/pl-document"),
+      ]);
+      return pdf(<PLDocument data={shipping} />).toBlob();
+    }, `PL_${shipping.pl_no}.pdf`);
+  }
+
+  async function handleSLDownload() {
+    await downloadPDF(async () => {
+      const [{ pdf }, { SLDocument }] = await Promise.all([
+        import("@react-pdf/renderer"),
+        import("~/components/pdf/sl-document"),
+      ]);
+      return pdf(<SLDocument data={shipping} />).toBlob();
+    }, `SL_${shipping.ci_no}_ALL.pdf`);
+  }
 
   const fetcherError = (fetcher.data as { error?: string } | null)?.error;
   const currentAction = fetcher.formData?.get("_action") as string | null;
@@ -152,6 +185,42 @@ export default function ShippingDetailPage() {
                   통관 생성
                 </Link>
               </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={handleCIDownload}
+                disabled={isPDFLoading}
+              >
+                {isPDFLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <FileDown className="mr-2 h-4 w-4" />
+                )}
+                CI 다운로드
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={handlePLDownload}
+                disabled={isPDFLoading}
+              >
+                {isPDFLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <FileDown className="mr-2 h-4 w-4" />
+                )}
+                PL 다운로드
+              </DropdownMenuItem>
+              {shipping.stuffing_lists && shipping.stuffing_lists.length > 0 && (
+                <DropdownMenuItem
+                  onClick={handleSLDownload}
+                  disabled={isPDFLoading}
+                >
+                  {isPDFLoading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <FileDown className="mr-2 h-4 w-4" />
+                  )}
+                  SL 다운로드
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => setShowDeleteDialog(true)}

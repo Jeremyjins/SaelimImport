@@ -11,7 +11,11 @@ export default defineConfig({
     reactRouter(),
     tsconfigPaths(),
   ],
+  ssr: {
+    noExternal: ["@react-pdf/renderer"],
+  },
   optimizeDeps: {
+    exclude: ["@react-pdf/renderer"],
     include: [
       "react",
       "react/jsx-runtime",

@@ -21,7 +21,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
-import { MoreHorizontal, Pencil, Trash2, Loader2 } from "~/components/ui/icons";
+import { MoreHorizontal, Pencil, Trash2, Loader2, FileDown } from "~/components/ui/icons";
+import { usePDFDownload } from "~/hooks/use-pdf-download";
 import { CustomsDetailInfo } from "~/components/customs/customs-detail-info";
 import { CustomsFeeSummary } from "~/components/customs/customs-fee-summary";
 import { ContentSection } from "~/components/content/content-section";
@@ -46,6 +47,7 @@ export default function CustomsDetailPage() {
   const fetcher = useFetcher();
   const navigate = useNavigate();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const { loading: isPDFLoading, download: downloadPDF } = usePDFDownload();
   const prevStateRef = useRef(fetcher.state);
 
   const currentAction = (fetcher.formData as unknown as FormData | null)?.get(
@@ -93,6 +95,19 @@ export default function CustomsDetailPage() {
     fetcher.submit({ _action: "delete" }, { method: "post" });
   }
 
+  async function handleInvoiceDownload() {
+    const filename = rawCustoms.customs_no
+      ? `Invoice_${rawCustoms.customs_no}.pdf`
+      : "Invoice_customs.pdf";
+    await downloadPDF(async () => {
+      const [{ pdf }, { InvoiceDocument }] = await Promise.all([
+        import("@react-pdf/renderer"),
+        import("~/components/pdf/invoice-document"),
+      ]);
+      return pdf(<InvoiceDocument data={rawCustoms} />).toBlob();
+    }, filename);
+  }
+
   const pageTitle = rawCustoms.customs_no
     ? `통관 ${rawCustoms.customs_no}`
     : "통관서류 상세";
@@ -113,7 +128,7 @@ export default function CustomsDetailPage() {
           {/* 액션 드롭다운 */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" disabled={isDeleting}>
+              <Button variant="outline" size="icon" className="h-8 w-8" disabled={isDeleting}>
                 {isDeleting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
@@ -124,14 +139,24 @@ export default function CustomsDetailPage() {
             <DropdownMenuContent align="end">
               <DropdownMenuItem
                 onClick={() => navigate(`/customs/${rawCustoms.id}/edit`)}
+                disabled={isPDFLoading}
               >
                 <Pencil className="h-4 w-4 mr-2" />
                 통관서류 수정
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
+                onClick={handleInvoiceDownload}
+                disabled={isPDFLoading}
+              >
+                <FileDown className="h-4 w-4 mr-2" />
+                인보이스 다운로드
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
                 className="text-red-600 focus:text-red-600"
                 onClick={() => setShowDeleteDialog(true)}
+                disabled={isPDFLoading}
               >
                 <Trash2 className="h-4 w-4 mr-2" />
                 통관서류 삭제
