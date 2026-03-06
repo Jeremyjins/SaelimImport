@@ -6,6 +6,7 @@ import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { DeliveryStatusBadge } from "~/components/delivery/change-request-badge";
 import { formatDate } from "~/lib/format";
 import { loader } from "~/loaders/saelim.delivery.server";
+import { ErrorBanner } from "~/components/shared/error-banner";
 import type { SaelimDeliveryListItem } from "~/types/delivery";
 import type { Route } from "./+types/_saelim.delivery";
 
@@ -61,14 +62,10 @@ export default function SaelimDeliveryPage() {
 
   return (
     <PageContainer>
-      <div className="max-w-3xl mx-auto space-y-6">
+      <div className="max-w-3xl mx-auto flex flex-col gap-6">
         <h1 className="text-2xl font-bold text-zinc-900">배송 현황</h1>
 
-        {loaderError && (
-          <div className="rounded-md bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-            {loaderError}
-          </div>
-        )}
+        {loaderError && <ErrorBanner message={loaderError} />}
 
         {/* 상태 필터 */}
         <Tabs value={statusFilter} onValueChange={handleTabChange}>

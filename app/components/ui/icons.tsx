@@ -69,4 +69,6 @@ export {
   ExternalLink,
   // Saelim portal icons
   Send,
+  // Dashboard icons
+  Home,
 } from "lucide-react";

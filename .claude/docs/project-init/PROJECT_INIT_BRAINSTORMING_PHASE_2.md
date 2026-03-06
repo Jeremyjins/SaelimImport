@@ -2,7 +2,7 @@
 
 **Date:** 2026-03-06
 **Status:** Phase 2 상세 설계 완료
-**참조:** [종합 브레인스토밍](../PROJECT_INIT_BRAINSTORMING.md) | [Phase 0](PROJECT_INIT_BRAINSTORMING_PHASE_0.md)
+**참조:** [종합 브레인스토밍](PROJECT_INIT_BRAINSTORMING.md) | [Phase 0](PROJECT_INIT_BRAINSTORMING_PHASE_0.md)
 **Phase 상태:** Phase 0 완료, Phase 1 완료 → **Phase 2 구현 준비**
 
 ---

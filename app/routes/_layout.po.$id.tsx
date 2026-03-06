@@ -40,6 +40,7 @@ import type { ContentItem } from "~/types/content";
 import { formatDate, formatCurrency } from "~/lib/format";
 import type { DocStatus } from "~/types/common";
 import { ContentSection } from "~/components/content/content-section";
+import { ErrorBanner } from "~/components/shared/error-banner";
 
 export { loader, action };
 
@@ -74,7 +75,7 @@ export default function PODetailPage() {
   }
 
   const fetcherError = (fetcher.data as { error?: string } | null)?.error;
-  const currentAction = fetcher.formData?.get("_action") as string | null;
+  const currentAction = (fetcher.formData as unknown as FormData | null)?.get("_action") as string | null;
   const isToggling = fetcher.state !== "idle" && currentAction === "toggle_status";
   const isCloning = fetcher.state !== "idle" && currentAction === "clone";
   const isDeleting = fetcher.state !== "idle" && currentAction === "delete";
@@ -180,11 +181,7 @@ export default function PODetailPage() {
 
       <PageContainer>
         <div className="flex flex-col gap-6">
-          {fetcherError && (
-            <div className="rounded-md bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-              {fetcherError}
-            </div>
-          )}
+          {fetcherError && <ErrorBanner message={fetcherError} />}
           {/* 기본 정보 + 거래 조건 */}
           <PODetailInfo po={po} />
 
@@ -247,7 +244,7 @@ export default function PODetailPage() {
           />
 
           {/* 하단 메타 정보 */}
-          <div className="flex gap-4 text-xs text-zinc-400">
+          <div className="flex gap-4 text-xs text-zinc-500">
             <span>작성: {formatDate(po.created_at)}</span>
             <span>수정: {formatDate(po.updated_at)}</span>
           </div>

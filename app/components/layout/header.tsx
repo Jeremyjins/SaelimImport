@@ -24,9 +24,9 @@ export function Header({ title, backTo, children }: HeaderProps) {
         </Link>
       )}
       {title && (
-        <h1 className="text-sm font-semibold text-foreground">{title}</h1>
+        <h1 className="text-sm font-semibold text-foreground truncate min-w-0 flex-1">{title}</h1>
       )}
-      {children && <div className="ml-auto flex items-center gap-2">{children}</div>}
+      {children && <div className="ml-auto flex items-center gap-2 shrink-0">{children}</div>}
     </header>
   );
 }

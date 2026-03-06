@@ -11,7 +11,10 @@
 		"preview": "npm run build && vite preview",
 		"typecheck": "npm run cf-typegen && react-router typegen && tsc -b",
 		"test": "vitest run",
-		"test:coverage": "vitest run --coverage"
+		"test:coverage": "vitest run --coverage",
+		"test:unit": "vitest run app/lib/__tests__/",
+		"test:schemas": "vitest run app/loaders/__tests__/*.schema.test.ts",
+		"test:watch": "vitest"
 	},
 	"dependencies": {
 		"@react-pdf/renderer": "^4.3.2",

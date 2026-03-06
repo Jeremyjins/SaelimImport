@@ -6,6 +6,7 @@ import type { Json } from "~/types/database";
 import type { ShippingLineItem, StuffingRollDetail } from "~/types/shipping";
 import { lineItemSchema, shippingSchema, stuffingListSchema, stuffingRollSchema } from "~/loaders/shipping.schema";
 import { loadContent, handleContentAction } from "~/lib/content.server";
+import { unlinkShippingFromOrder } from "~/lib/order-sync.server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 // ── 공통 타입 ──────────────────────────────────────────────
@@ -749,6 +750,9 @@ export async function action({ request, context, params }: DetailLoaderArgs) {
       .from("deliveries")
       .update({ shipping_doc_id: null })
       .eq("shipping_doc_id", id);
+
+    // SYNC-1: 연결된 Order의 shipping_doc_id 해제 (고아 FK 방지)
+    await unlinkShippingFromOrder(supabase, id);
 
     throw redirect("/shipping", { headers: responseHeaders });
   }

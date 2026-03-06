@@ -63,7 +63,7 @@ function ToolbarButton({
           variant="ghost"
           size="icon"
           className={cn(
-            "h-7 w-7 shrink-0",
+            "h-8 w-8 shrink-0",
             isActive && "bg-zinc-100 text-zinc-900",
             hideOnMobile && "hidden md:inline-flex"
           )}

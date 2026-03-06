@@ -2,7 +2,7 @@
 
 **Date:** 2026-03-06
 **Status:** Phase 3 상세 설계 완료
-**참조:** [종합 브레인스토밍](../PROJECT_INIT_BRAINSTORMING.md)
+**참조:** [종합 브레인스토밍](PROJECT_INIT_BRAINSTORMING.md)
 
 ---
 

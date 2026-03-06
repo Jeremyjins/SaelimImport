@@ -14,7 +14,7 @@ export function PageContainer({
   return (
     <div
       className={cn(
-        "flex flex-col gap-6 p-6",
+        "flex flex-col gap-4 p-4 md:gap-6 md:p-6",
         !fullWidth && "max-w-7xl mx-auto",
         className
       )}

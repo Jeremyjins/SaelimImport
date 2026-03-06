@@ -50,7 +50,7 @@ export default function OrderDetailPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const prevStateRef = useRef(fetcher.state);
 
-  const currentAction = (fetcher.formData as FormData | null)?.get("_action") as string | null;
+  const currentAction = (fetcher.formData as unknown as FormData | null)?.get("_action") as string | null;
   const isTogglingStatus = fetcher.state !== "idle" && currentAction === "toggle_status";
   const isRefreshingLinks = fetcher.state !== "idle" && currentAction === "refresh_links";
   const isDeleting = fetcher.state !== "idle" && currentAction === "delete";
@@ -111,7 +111,7 @@ export default function OrderDetailPage() {
           />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" disabled={isDeleting}>
+              <Button variant="outline" size="icon" className="h-8 w-8" disabled={isDeleting}>
                 {isDeleting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
@@ -137,11 +137,11 @@ export default function OrderDetailPage() {
       </Header>
 
       <PageContainer>
-        <div className="space-y-4">
+        <div className="flex flex-col gap-6">
           {/* Section 1: 날짜 타임라인 */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold text-zinc-700">진행 타임라인</CardTitle>
+              <CardTitle>진행 타임라인</CardTitle>
             </CardHeader>
             <CardContent>
               <OrderDateTimeline order={rawOrder} />
@@ -162,7 +162,7 @@ export default function OrderDetailPage() {
           {/* Section 3: 오더 정보 (Inline 수정) */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold text-zinc-700">오더 정보</CardTitle>
+              <CardTitle>오더 정보</CardTitle>
             </CardHeader>
             <CardContent>
               <OrderInlineFields order={rawOrder} />
@@ -178,8 +178,8 @@ export default function OrderDetailPage() {
           />
 
           {/* 메타 정보 */}
-          <div className="text-xs text-zinc-400 flex gap-4 pb-4">
-            <span>생성: {formatDate(rawOrder.created_at)}</span>
+          <div className="text-xs text-zinc-500 flex gap-4 pb-4">
+            <span>작성: {formatDate(rawOrder.created_at)}</span>
             {rawOrder.updated_at && (
               <span>수정: {formatDate(rawOrder.updated_at)}</span>
             )}
@@ -201,8 +201,10 @@ export default function OrderDetailPage() {
             <AlertDialogCancel>취소</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
+              disabled={isDeleting}
               className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
             >
+              {isDeleting && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
               삭제
             </AlertDialogAction>
           </AlertDialogFooter>

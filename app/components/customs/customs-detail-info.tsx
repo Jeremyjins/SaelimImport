@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { ToggleLeft, ToggleRight, Loader2 } from "~/components/ui/icons";
@@ -20,9 +21,7 @@ export function CustomsDetailInfo({
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-semibold text-zinc-700">
-          기본 정보
-        </CardTitle>
+        <CardTitle className="text-base">기본 정보</CardTitle>
       </CardHeader>
       <CardContent>
         <dl className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
@@ -42,15 +41,15 @@ export function CustomsDetailInfo({
             <dt className="text-xs text-zinc-500 mb-1">선적서류</dt>
             <dd>
               {customs.shipping ? (
-                <a
-                  href={`/shipping/${customs.shipping.id}`}
+                <Link
+                  to={`/shipping/${customs.shipping.id}`}
                   className="font-medium text-blue-600 hover:underline"
                 >
                   {customs.shipping.ci_no}
                   {customs.shipping.vessel
                     ? ` (${customs.shipping.vessel})`
                     : ""}
-                </a>
+                </Link>
               ) : (
                 <span className="text-zinc-400">—</span>
               )}

@@ -1,4 +1,4 @@
-import { Outlet, Link, useFetcher, data, redirect } from "react-router";
+import { Outlet, Link, useFetcher, data, redirect, isRouteErrorResponse, useRouteError } from "react-router";
 import type { Route } from "./+types/_saelim";
 import { Button } from "~/components/ui/button";
 import {
@@ -32,7 +32,7 @@ export default function SaelimLayout({ loaderData }: Route.ComponentProps) {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="flex h-16 items-center justify-between border-b bg-white px-8">
+      <header className="flex h-16 items-center justify-between border-b bg-white px-4 md:px-8">
         <div className="flex items-center gap-8">
           <span className="text-base font-bold text-zinc-900">
             세림 수입관리
@@ -77,6 +77,33 @@ export default function SaelimLayout({ loaderData }: Route.ComponentProps) {
 
       <main className="flex-1 bg-zinc-50">
         <Outlet />
+      </main>
+    </div>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+
+  return (
+    <div className="flex min-h-screen flex-col">
+      <header className="flex h-16 items-center justify-between border-b bg-white px-4 md:px-8">
+        <span className="text-base font-bold text-zinc-900">세림 수입관리</span>
+      </header>
+      <main className="flex-1 bg-zinc-50 flex items-center justify-center p-6">
+        <div className="rounded-md bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700 max-w-md w-full">
+          {isRouteErrorResponse(error) ? (
+            <>
+              <p className="font-medium">{error.status} {error.statusText}</p>
+              {error.data && <p className="mt-1">{String(error.data)}</p>}
+            </>
+          ) : (
+            <>
+              <p className="font-medium">예상치 못한 오류가 발생했습니다</p>
+              <p className="mt-1">페이지를 새로고침해 주세요.</p>
+            </>
+          )}
+        </div>
       </main>
     </div>
   );

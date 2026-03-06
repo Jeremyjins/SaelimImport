@@ -1,4 +1,4 @@
-import { useLoaderData, useSearchParams, useNavigate } from "react-router";
+import { useLoaderData, useSearchParams, useNavigate, Link } from "react-router";
 import { useState, useMemo } from "react";
 import { Header } from "~/components/layout/header";
 import { PageContainer } from "~/components/layout/page-container";
@@ -14,7 +14,8 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import { Badge } from "~/components/ui/badge";
-import { Plus, Search } from "~/components/ui/icons";
+import { ErrorBanner } from "~/components/shared/error-banner";
+import { Plus, Search, Receipt } from "~/components/ui/icons";
 import { loader } from "~/loaders/customs.server";
 import { formatDate, formatCurrency } from "~/lib/format";
 import { calcTotalFees } from "~/lib/customs-utils";
@@ -91,11 +92,7 @@ export default function CustomsPage() {
       </Header>
 
       <PageContainer fullWidth>
-        {loaderError && (
-          <div className="rounded-md bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-            {loaderError}
-          </div>
-        )}
+        {loaderError && <ErrorBanner message={loaderError} />}
 
         {/* 필터 & 검색 */}
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -117,6 +114,7 @@ export default function CustomsPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-8"
+              aria-label="검색"
             />
           </div>
         </div>
@@ -140,13 +138,13 @@ export default function CustomsPage() {
             <TableBody>
               {filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={9}
-                    className="text-center py-12 text-zinc-400"
-                  >
-                    {search
-                      ? "검색 결과가 없습니다."
-                      : "등록된 통관서류가 없습니다."}
+                  <TableCell colSpan={9}>
+                    <div className="flex flex-col items-center py-10 text-center">
+                      <Receipt className="h-10 w-10 text-zinc-300 mb-2" />
+                      <p className="text-sm text-zinc-500">
+                        {search ? "검색 결과가 없습니다." : "등록된 통관서류가 없습니다."}
+                      </p>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : (
@@ -173,10 +171,10 @@ export default function CustomsPage() {
                       <TableCell>
                         <div className="font-medium">
                           {c.customs_no ?? (
-                            <span className="text-zinc-400">-</span>
+                            <span className="text-zinc-500">-</span>
                           )}
                         </div>
-                        <div className="text-xs text-zinc-400">
+                        <div className="text-xs text-zinc-500">
                           {formatDate(c.created_at)}
                         </div>
                       </TableCell>
@@ -221,10 +219,16 @@ export default function CustomsPage() {
         {/* Mobile 카드 */}
         <div className="md:hidden flex flex-col gap-3">
           {filtered.length === 0 ? (
-            <div className="text-center py-12 text-zinc-400 text-sm">
-              {search
-                ? "검색 결과가 없습니다."
-                : "등록된 통관서류가 없습니다."}
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <Receipt className="h-12 w-12 text-zinc-300 mb-3" />
+              <p className="text-sm text-zinc-500">
+                {search ? "검색 결과가 없습니다." : "등록된 통관서류가 없습니다."}
+              </p>
+              {!search && (
+                <Button size="sm" className="mt-4" onClick={() => navigate("/customs/new")}>
+                  통관서류 작성하기
+                </Button>
+              )}
             </div>
           ) : (
             filtered.map((c) => {
@@ -235,16 +239,15 @@ export default function CustomsPage() {
                 c.etc_fee
               );
               return (
-                <button
+                <Link
                   key={c.id}
-                  type="button"
-                  className="block w-full text-left rounded-lg border bg-white p-4 hover:bg-zinc-50"
-                  onClick={() => navigate(`/customs/${c.id}`)}
+                  to={`/customs/${c.id}`}
+                  className="block rounded-lg border bg-white p-4 hover:bg-zinc-50"
                 >
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-semibold text-sm">
                       {c.customs_no ?? (
-                        <span className="text-zinc-400">통관번호 없음</span>
+                        <span className="text-zinc-500">통관번호 없음</span>
                       )}
                     </span>
                     <FeeReceivedBadge received={c.fee_received} />
@@ -261,7 +264,7 @@ export default function CustomsPage() {
                   <div className="text-sm font-medium text-right">
                     총 {formatCurrency(totals.grandTotal, "KRW")}
                   </div>
-                </button>
+                </Link>
               );
             })
           )}

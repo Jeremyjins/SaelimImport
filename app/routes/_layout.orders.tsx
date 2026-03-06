@@ -1,4 +1,4 @@
-import { useLoaderData, useSearchParams, useNavigate } from "react-router";
+import { useLoaderData, useSearchParams, useNavigate, Link } from "react-router";
 import { useState, useMemo } from "react";
 import { Header } from "~/components/layout/header";
 import { PageContainer } from "~/components/layout/page-container";
@@ -14,9 +14,10 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import { DocStatusBadge } from "~/components/shared/doc-status-badge";
+import { ErrorBanner } from "~/components/shared/error-banner";
 import { OrderCreateDialog } from "~/components/orders/order-create-dialog";
 import { OrderCYWarning } from "~/components/orders/order-cy-warning";
-import { Plus, Search } from "~/components/ui/icons";
+import { Plus, Search, Package } from "~/components/ui/icons";
 import type { OrderListItem } from "~/types/order";
 import { loader } from "~/loaders/orders.server";
 import { formatDate } from "~/lib/format";
@@ -83,14 +84,10 @@ export default function OrdersPage() {
       </Header>
 
       <PageContainer fullWidth>
-        {loaderError && (
-          <div className="rounded-md bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-            {loaderError}
-          </div>
-        )}
+        {loaderError && <ErrorBanner message={loaderError} />}
 
         {/* 필터 & 검색 */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <Tabs value={statusFilter} onValueChange={handleTabChange}>
             <TabsList>
               <TabsTrigger value="all">전체 ({counts.all})</TabsTrigger>
@@ -98,13 +95,14 @@ export default function OrdersPage() {
               <TabsTrigger value="complete">완료 ({counts.complete})</TabsTrigger>
             </TabsList>
           </Tabs>
-          <div className="relative w-full sm:w-72">
+          <div className="relative w-full md:w-72">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400" />
             <Input
               placeholder="세림번호, PO, PI, CI번호 검색..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-8"
+              aria-label="검색"
             />
           </div>
         </div>
@@ -127,8 +125,13 @@ export default function OrdersPage() {
             <TableBody>
               {filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-12 text-zinc-400">
-                    {search ? "검색 결과가 없습니다." : "등록된 오더가 없습니다."}
+                  <TableCell colSpan={8}>
+                    <div className="flex flex-col items-center py-10 text-center">
+                      <Package className="h-10 w-10 text-zinc-300 mb-2" />
+                      <p className="text-sm text-zinc-500">
+                        {search ? "검색 결과가 없습니다." : "등록된 오더가 없습니다."}
+                      </p>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : (
@@ -147,7 +150,7 @@ export default function OrdersPage() {
                   >
                     <TableCell>
                       <div className="font-medium">{o.saelim_no ?? "-"}</div>
-                      <div className="text-xs text-zinc-400">
+                      <div className="text-xs text-zinc-500">
                         {formatDate(o.created_at)}
                       </div>
                     </TableCell>
@@ -189,21 +192,28 @@ export default function OrdersPage() {
         {/* Mobile 카드 */}
         <div className="md:hidden flex flex-col gap-3">
           {filtered.length === 0 ? (
-            <div className="text-center py-12 text-zinc-400 text-sm">
-              {search ? "검색 결과가 없습니다." : "등록된 오더가 없습니다."}
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <Package className="h-12 w-12 text-zinc-300 mb-3" />
+              <p className="text-sm text-zinc-500">
+                {search ? "검색 결과가 없습니다." : "등록된 오더가 없습니다."}
+              </p>
+              {!search && (
+                <Button size="sm" className="mt-4" onClick={() => setDialogOpen(true)}>
+                  오더 생성하기
+                </Button>
+              )}
             </div>
           ) : (
             filtered.map((o) => (
-              <button
+              <Link
                 key={o.id}
-                type="button"
-                className="block w-full text-left rounded-lg border bg-white p-4 hover:bg-zinc-50"
-                onClick={() => navigate(`/orders/${o.id}`)}
+                to={`/orders/${o.id}`}
+                className="block rounded-lg border bg-white p-4 hover:bg-zinc-50"
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className="font-semibold text-sm">
                     {o.saelim_no ?? (
-                      <span className="text-zinc-400">세림번호 없음</span>
+                      <span className="text-zinc-500">세림번호 없음</span>
                     )}
                   </span>
                   <DocStatusBadge status={o.status} />
@@ -222,7 +232,7 @@ export default function OrdersPage() {
                     customsDate={o.customs?.customs_date ?? null}
                   />
                 </div>
-              </button>
+              </Link>
             ))
           )}
         </div>

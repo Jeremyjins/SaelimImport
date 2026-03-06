@@ -6,6 +6,7 @@ import type { Json } from "~/types/database";
 import type { PILineItem } from "~/types/pi";
 import { lineItemSchema, piSchema } from "~/loaders/pi.schema";
 import { loadContent, handleContentAction } from "~/lib/content.server";
+import { unlinkPIFromOrder } from "~/lib/order-sync.server";
 
 // ── 공통 타입 ──────────────────────────────────────────────
 
@@ -346,6 +347,9 @@ export async function action({ request, context, params }: DetailLoaderArgs) {
         { status: 500, headers: responseHeaders }
       );
     }
+
+    // SYNC-1: 연결된 Order의 pi_id 해제 (고아 FK 방지)
+    await unlinkPIFromOrder(supabase, id);
 
     throw redirect("/pi", { headers: responseHeaders });
   }

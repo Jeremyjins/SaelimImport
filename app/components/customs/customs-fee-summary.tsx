@@ -66,9 +66,7 @@ export function CustomsFeeSummary({
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-semibold text-zinc-700">
-          비용 요약
-        </CardTitle>
+        <CardTitle className="text-base">비용 요약</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* 4열 그리드 */}

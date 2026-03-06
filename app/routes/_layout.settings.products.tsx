@@ -31,6 +31,7 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import { Plus, Pencil, Trash2 } from "~/components/ui/icons";
+import { Card } from "~/components/ui/card";
 import { loader, action } from "~/loaders/settings.products.server";
 
 export { loader, action };
@@ -175,7 +176,8 @@ export default function Page() {
         </Button>
       </Header>
       <PageContainer>
-        <div className="rounded-lg border">
+        {/* Desktop table */}
+        <div className="hidden md:block rounded-lg border">
           <Table>
             <TableHeader>
               <TableRow>
@@ -225,6 +227,52 @@ export default function Page() {
               )}
             </TableBody>
           </Table>
+        </div>
+
+        {/* Mobile cards */}
+        <div className="md:hidden space-y-3">
+          {products.length === 0 ? (
+            <p className="text-center text-sm text-muted-foreground py-8">
+              등록된 제품이 없습니다.
+            </p>
+          ) : (
+            products.map((product) => (
+              <Card key={product.id} className="p-4">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="font-medium text-sm">{product.name}</p>
+                    <div className="text-xs text-muted-foreground mt-1 flex gap-3">
+                      {product.gsm != null && <span>GSM: {product.gsm} g/m²</span>}
+                      {product.width_mm != null && <span>너비: {product.width_mm} mm</span>}
+                    </div>
+                    {product.hs_code && (
+                      <p className="text-xs text-muted-foreground mt-0.5">HS: {product.hs_code}</p>
+                    )}
+                  </div>
+                  <div className="flex gap-1 shrink-0">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => handleEdit(product)}
+                      aria-label="수정"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-destructive hover:text-destructive"
+                      onClick={() => setDeleteProduct(product)}
+                      aria-label="삭제"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            ))
+          )}
         </div>
       </PageContainer>
 

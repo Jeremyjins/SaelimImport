@@ -167,7 +167,7 @@ export default function CustomsDetailPage() {
       </Header>
 
       <PageContainer>
-        <div className="space-y-4">
+        <div className="flex flex-col gap-6">
           {/* Section 1: 기본 정보 */}
           <CustomsDetailInfo
             customs={rawCustoms}
@@ -194,8 +194,8 @@ export default function CustomsDetailPage() {
           />
 
           {/* 메타 정보 */}
-          <div className="text-xs text-zinc-400 flex gap-4 pb-4">
-            <span>생성: {formatDate(rawCustoms.created_at)}</span>
+          <div className="text-xs text-zinc-500 flex gap-4 pb-4">
+            <span>작성: {formatDate(rawCustoms.created_at)}</span>
             {rawCustoms.updated_at && (
               <span>수정: {formatDate(rawCustoms.updated_at)}</span>
             )}
@@ -217,8 +217,10 @@ export default function CustomsDetailPage() {
             <AlertDialogCancel>취소</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
+              disabled={isDeleting}
               className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
             >
+              {isDeleting && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
               삭제
             </AlertDialogAction>
           </AlertDialogFooter>

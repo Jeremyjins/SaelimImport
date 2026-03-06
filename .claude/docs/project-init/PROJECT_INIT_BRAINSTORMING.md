@@ -23,11 +23,11 @@ CHP (Taiwan, Supplier) ──PO──> GV International (Intermediary) ──PI�
 
 | # | Role | File | Scope |
 |---|------|------|-------|
-| 1 | **Architect** | [architect-notes.md](brainstorm/architect-notes.md) | 시스템 아키텍처, DB 스키마, 모듈 연결, 개발 단계 |
-| 2 | **Frontend Dev** | [frontend-notes.md](brainstorm/frontend-notes.md) | 라우팅, UI 패턴, 컴포넌트 설계, Tiptap/TanStack |
-| 3 | **Backend Dev** | [backend-notes.md](brainstorm/backend-notes.md) | Supabase 스키마, RLS, RPC, 마이그레이션, Storage |
-| 4 | **Security Reviewer** | [security-notes.md](brainstorm/security-notes.md) | Auth, RLS 정책, 데이터 격리, API 보안 |
-| 5 | **Researcher** | [research-notes.md](brainstorm/research-notes.md) | PDF 생성, 한국어 폰트, Tiptap, TanStack Query |
+| 1 | **Architect** | [architect-notes.md](../brainstorm/architect-notes.md) | 시스템 아키텍처, DB 스키마, 모듈 연결, 개발 단계 |
+| 2 | **Frontend Dev** | [frontend-notes.md](../brainstorm/frontend-notes.md) | 라우팅, UI 패턴, 컴포넌트 설계, Tiptap/TanStack |
+| 3 | **Backend Dev** | [backend-notes.md](../brainstorm/backend-notes.md) | Supabase 스키마, RLS, RPC, 마이그레이션, Storage |
+| 4 | **Security Reviewer** | [security-notes.md](../brainstorm/security-notes.md) | Auth, RLS 정책, 데이터 격리, API 보안 |
+| 5 | **Researcher** | [research-notes.md](../brainstorm/research-notes.md) | PDF 생성, 한국어 폰트, Tiptap, TanStack Query |
 
 **제외:** Tester (코드 없음), Perf-analyzer (시기상조), Code-reviewer (코드 없음)
 
@@ -391,12 +391,12 @@ app/components/
 ## 12. Detailed Notes by Team Member
 
 각 팀원별 상세 분석은 아래 파일 참조:
-- [Architect Notes](brainstorm/architect-notes.md)
-- [Frontend Dev Notes](brainstorm/frontend-notes.md)
-- [Backend Dev Notes](brainstorm/backend-notes.md)
-- [Security Review Notes](brainstorm/security-notes.md)
-- [Research Notes](brainstorm/research-notes.md)
-- [Best Practice 기반 개선 아이디어](brainstorm/improvements.md)
+- [Architect Notes](../brainstorm/architect-notes.md)
+- [Frontend Dev Notes](../brainstorm/frontend-notes.md)
+- [Backend Dev Notes](../brainstorm/backend-notes.md)
+- [Security Review Notes](../brainstorm/security-notes.md)
+- [Research Notes](../brainstorm/research-notes.md)
+- [Best Practice 기반 개선 아이디어](../brainstorm/improvements.md)
 
 ---
 

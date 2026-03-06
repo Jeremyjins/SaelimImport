@@ -1,4 +1,4 @@
-import { useLoaderData, useSearchParams, useNavigate } from "react-router";
+import { useLoaderData, useSearchParams, useNavigate, Link } from "react-router";
 import type { Route } from "./+types/_layout.delivery";
 import { useState, useMemo } from "react";
 import { Header } from "~/components/layout/header";
@@ -15,7 +15,8 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import { DeliveryStatusBadge } from "~/components/delivery/change-request-badge";
-import { Search } from "~/components/ui/icons";
+import { ErrorBanner } from "~/components/shared/error-banner";
+import { Search, Truck } from "~/components/ui/icons";
 import { formatDate } from "~/lib/format";
 import type { DeliveryListItem } from "~/types/delivery";
 import { loader } from "~/loaders/delivery.server";
@@ -81,14 +82,10 @@ export default function DeliveryPage() {
       <Header title="배송관리" />
 
       <PageContainer fullWidth>
-        {loaderError && (
-          <div className="rounded-md bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-            {loaderError}
-          </div>
-        )}
+        {loaderError && <ErrorBanner message={loaderError} />}
 
         {/* 필터 & 검색 */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <Tabs value={statusFilter} onValueChange={handleTabChange}>
             <TabsList>
               <TabsTrigger value="all">전체 ({counts.all})</TabsTrigger>
@@ -98,13 +95,14 @@ export default function DeliveryPage() {
               </TabsTrigger>
             </TabsList>
           </Tabs>
-          <div className="relative w-full sm:w-72">
+          <div className="relative w-full md:w-72">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400" />
             <Input
               placeholder="PI번호, CI번호, 선박명 검색..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-8"
+              aria-label="검색"
             />
           </div>
         </div>
@@ -125,11 +123,13 @@ export default function DeliveryPage() {
             <TableBody>
               {filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className="text-center py-12 text-zinc-400"
-                  >
-                    {search ? "검색 결과가 없습니다." : "등록된 배송이 없습니다."}
+                  <TableCell colSpan={6}>
+                    <div className="flex flex-col items-center py-10 text-center">
+                      <Truck className="h-10 w-10 text-zinc-300 mb-2" />
+                      <p className="text-sm text-zinc-500">
+                        {search ? "검색 결과가 없습니다." : "등록된 배송이 없습니다."}
+                      </p>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : (
@@ -184,16 +184,18 @@ export default function DeliveryPage() {
         {/* Mobile 카드 */}
         <div className="md:hidden flex flex-col gap-3">
           {filtered.length === 0 ? (
-            <div className="text-center py-12 text-zinc-400 text-sm">
-              {search ? "검색 결과가 없습니다." : "등록된 배송이 없습니다."}
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <Truck className="h-12 w-12 text-zinc-300 mb-3" />
+              <p className="text-sm text-zinc-500">
+                {search ? "검색 결과가 없습니다." : "등록된 배송이 없습니다."}
+              </p>
             </div>
           ) : (
             filtered.map((d) => (
-              <button
+              <Link
                 key={d.id}
-                type="button"
-                className="block w-full text-left rounded-lg border bg-white p-4 hover:bg-zinc-50"
-                onClick={() => navigate(`/delivery/${d.id}`)}
+                to={`/delivery/${d.id}`}
+                className="block rounded-lg border bg-white p-4 hover:bg-zinc-50"
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className="font-semibold text-sm">
@@ -217,7 +219,7 @@ export default function DeliveryPage() {
                     <span>배송일: {formatDate(d.delivery_date)}</span>
                   )}
                 </div>
-              </button>
+              </Link>
             ))
           )}
         </div>

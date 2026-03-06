@@ -34,7 +34,7 @@ export default function SaelimDeliveryDetailPage() {
 
   return (
     <PageContainer>
-      <div className="max-w-2xl mx-auto space-y-6">
+      <div className="max-w-2xl mx-auto flex flex-col gap-6">
         {/* 페이지 헤더 */}
         <div>
           <Link
@@ -55,7 +55,7 @@ export default function SaelimDeliveryDetailPage() {
           <CardHeader>
             <CardTitle className="text-base">배송 정보</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm text-zinc-500">
                 <Package className="h-4 w-4" />
@@ -86,7 +86,7 @@ export default function SaelimDeliveryDetailPage() {
                 <span className="text-sm">
                   {delivery.shipping.vessel ?? "-"}
                   {delivery.shipping.eta && (
-                    <span className="text-zinc-400 ml-1">
+                    <span className="text-zinc-500 ml-1">
                       ({formatDate(delivery.shipping.eta)})
                     </span>
                   )}
@@ -147,7 +147,7 @@ export default function SaelimDeliveryDetailPage() {
                       </p>
                     </div>
                   )}
-                  <p className="text-xs text-zinc-400">
+                  <p className="text-xs text-zinc-500">
                     요청일: {formatDate(req.created_at)}
                   </p>
                 </div>

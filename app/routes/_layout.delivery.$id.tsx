@@ -127,8 +127,12 @@ export default function DeliveryDetailPage() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="sm" variant="outline" disabled={isDeleting}>
-                <MoreHorizontal className="h-4 w-4" />
+              <Button size="icon" className="h-8 w-8" variant="outline" disabled={isDeleting}>
+                {isDeleting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <MoreHorizontal className="h-4 w-4" />
+                )}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -145,7 +149,7 @@ export default function DeliveryDetailPage() {
       </Header>
 
       <PageContainer>
-        <div className="space-y-6">
+        <div className="flex flex-col gap-6">
           {/* 배송 정보 */}
           <DeliveryInfoCard delivery={delivery} />
 
@@ -165,8 +169,8 @@ export default function DeliveryDetailPage() {
           />
 
           {/* 메타 정보 */}
-          <div className="text-xs text-zinc-400 flex gap-4">
-            <span>생성: {formatDate(delivery.created_at)}</span>
+          <div className="text-xs text-zinc-500 flex gap-4">
+            <span>작성: {formatDate(delivery.created_at)}</span>
             <span>수정: {formatDate(delivery.updated_at)}</span>
           </div>
         </div>
@@ -187,7 +191,9 @@ export default function DeliveryDetailPage() {
             <AlertDialogAction
               className="bg-red-600 hover:bg-red-700"
               onClick={handleDelete}
+              disabled={isDeleting}
             >
+              {isDeleting && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
               삭제
             </AlertDialogAction>
           </AlertDialogFooter>

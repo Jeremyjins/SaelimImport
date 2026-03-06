@@ -14,7 +14,8 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import { DocStatusBadge } from "~/components/shared/doc-status-badge";
-import { Plus, Search } from "~/components/ui/icons";
+import { ErrorBanner } from "~/components/shared/error-banner";
+import { Plus, Search, Ship } from "~/components/ui/icons";
 import type { ShippingListItem } from "~/types/shipping";
 import { loader } from "~/loaders/shipping.server";
 import { formatDate, formatCurrency } from "~/lib/format";
@@ -80,15 +81,10 @@ export default function ShippingListPage() {
       </Header>
 
       <PageContainer fullWidth>
-        {/* 로더 에러 */}
-        {loaderError && (
-          <div className="rounded-md bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-            {loaderError}
-          </div>
-        )}
+        {loaderError && <ErrorBanner message={loaderError} />}
 
         {/* 필터 & 검색 */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <Tabs value={statusFilter} onValueChange={handleTabChange}>
             <TabsList>
               <TabsTrigger value="all">전체 ({counts.all})</TabsTrigger>
@@ -96,13 +92,14 @@ export default function ShippingListPage() {
               <TabsTrigger value="complete">완료 ({counts.complete})</TabsTrigger>
             </TabsList>
           </Tabs>
-          <div className="relative w-full sm:w-64">
+          <div className="relative w-full md:w-64">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400" />
             <Input
               placeholder="CI번호 또는 PL번호 검색..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-8"
+              aria-label="검색"
             />
           </div>
         </div>
@@ -124,8 +121,13 @@ export default function ShippingListPage() {
             <TableBody>
               {filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-12 text-zinc-400">
-                    {search ? "검색 결과가 없습니다." : "등록된 선적서류가 없습니다."}
+                  <TableCell colSpan={7}>
+                    <div className="flex flex-col items-center py-10 text-center">
+                      <Ship className="h-10 w-10 text-zinc-300 mb-2" />
+                      <p className="text-sm text-zinc-500">
+                        {search ? "검색 결과가 없습니다." : "등록된 선적서류가 없습니다."}
+                      </p>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : (
@@ -144,7 +146,7 @@ export default function ShippingListPage() {
                   >
                     <TableCell>
                       <div className="font-medium">{sd.ci_no}</div>
-                      <div className="text-xs text-zinc-400">{sd.pl_no}</div>
+                      <div className="text-xs text-zinc-500">{sd.pl_no}</div>
                     </TableCell>
                     <TableCell className="text-zinc-500">
                       {formatDate(sd.ci_date)}
@@ -174,8 +176,16 @@ export default function ShippingListPage() {
         {/* Mobile 카드 목록 */}
         <div className="md:hidden flex flex-col gap-3">
           {filtered.length === 0 ? (
-            <div className="text-center py-12 text-zinc-400 text-sm">
-              {search ? "검색 결과가 없습니다." : "등록된 선적서류가 없습니다."}
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <Ship className="h-12 w-12 text-zinc-300 mb-3" />
+              <p className="text-sm text-zinc-500">
+                {search ? "검색 결과가 없습니다." : "등록된 선적서류가 없습니다."}
+              </p>
+              {!search && (
+                <Button asChild size="sm" className="mt-4">
+                  <Link to="/shipping/new">선적서류 작성하기</Link>
+                </Button>
+              )}
             </div>
           ) : (
             filtered.map((sd) => (
@@ -187,7 +197,7 @@ export default function ShippingListPage() {
                 <div className="flex items-center justify-between mb-1">
                   <div>
                     <span className="font-semibold text-sm">{sd.ci_no}</span>
-                    <span className="text-xs text-zinc-400 ml-1.5">/ {sd.pl_no}</span>
+                    <span className="text-xs text-zinc-500 ml-1.5">/ {sd.pl_no}</span>
                   </div>
                   <DocStatusBadge status={sd.status} />
                 </div>

@@ -28,6 +28,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import {
+  Home,
   ShoppingCart,
   FileText,
   Ship,
@@ -43,6 +44,7 @@ import {
 } from "~/components/ui/icons";
 
 const navItems = [
+  { title: "대시보드", url: "/", icon: Home },
   { title: "구매주문", url: "/po", icon: ShoppingCart },
   { title: "견적서", url: "/pi", icon: FileText },
   { title: "선적서류", url: "/shipping", icon: Ship },
@@ -91,7 +93,11 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton
                     asChild
-                    isActive={location.pathname === item.url || location.pathname.startsWith(item.url + "/")}
+                    isActive={
+                      item.url === "/"
+                        ? location.pathname === "/"
+                        : location.pathname === item.url || location.pathname.startsWith(item.url + "/")
+                    }
                   >
                     <Link to={item.url}>
                       <item.icon />

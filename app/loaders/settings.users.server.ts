@@ -15,6 +15,13 @@ const deleteSchema = z.object({
   user_id: z.string().uuid("올바른 사용자 ID가 아닙니다."),
 });
 
+const updateSchema = z.object({
+  user_id: z.string().uuid("올바른 사용자 ID가 아닙니다."),
+  name: z.string().min(1, "이름을 입력하세요"),
+  org_id: z.string().uuid("조직을 선택하세요"),
+  role: z.enum(["admin", "member"]),
+});
+
 // org.type(DB) → org_type(app_metadata) 매핑
 const ORG_TYPE_MAP: Record<string, string> = {
   seller: "gv",
@@ -168,6 +175,65 @@ export async function action({ request, context }: LoaderArgs) {
     if (error) {
       return data({ success: false, error: "사용자 삭제에 실패했습니다." }, { status: 500, headers: responseHeaders });
     }
+    return data({ success: true }, { headers: responseHeaders });
+  }
+
+  if (intent === "update") {
+    const raw = Object.fromEntries(formData);
+    const parsed = updateSchema.safeParse(raw);
+    if (!parsed.success) {
+      return data(
+        { success: false, error: parsed.error.issues[0]?.message ?? "입력 값을 확인하세요." },
+        { status: 400, headers: responseHeaders }
+      );
+    }
+
+    const { user_id, name, org_id, role } = parsed.data;
+
+    // 자기 자신 org 변경은 허용하되 role 변경만 제한하지 않음 (admin은 모든 수정 가능)
+
+    // 조직 정보 조회 (org_type 파생)
+    const { data: orgData, error: orgError } = await adminClient
+      .from("organizations")
+      .select("type")
+      .eq("id", org_id)
+      .is("deleted_at", null)
+      .single();
+
+    if (orgError || !orgData) {
+      return data(
+        { success: false, error: "선택한 조직을 찾을 수 없습니다." },
+        { status: 400, headers: responseHeaders }
+      );
+    }
+
+    const org_type = ORG_TYPE_MAP[orgData.type] ?? "supplier";
+
+    // app_metadata 업데이트
+    const { error: metaError } = await adminClient.auth.admin.updateUserById(user_id, {
+      app_metadata: { org_type, org_id },
+    });
+
+    if (metaError) {
+      return data(
+        { success: false, error: "사용자 메타데이터 업데이트에 실패했습니다." },
+        { status: 500, headers: responseHeaders }
+      );
+    }
+
+    // user_profiles 업데이트
+    const { error: profileError } = await adminClient
+      .from("user_profiles")
+      .update({ name, org_id, role })
+      .eq("id", user_id);
+
+    if (profileError) {
+      return data(
+        { success: false, error: "사용자 프로필 업데이트에 실패했습니다." },
+        { status: 500, headers: responseHeaders }
+      );
+    }
+
     return data({ success: true }, { headers: responseHeaders });
   }
 

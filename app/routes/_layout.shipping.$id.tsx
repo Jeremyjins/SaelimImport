@@ -41,6 +41,7 @@ import { formatDate } from "~/lib/format";
 import { usePDFDownload } from "~/hooks/use-pdf-download";
 import { ContentSection } from "~/components/content/content-section";
 import { StuffingSection } from "~/components/shipping/stuffing-section";
+import { ErrorBanner } from "~/components/shared/error-banner";
 import { toast } from "sonner";
 
 export { loader, action };
@@ -87,7 +88,7 @@ export default function ShippingDetailPage() {
   }
 
   const fetcherError = (fetcher.data as { error?: string } | null)?.error;
-  const currentAction = fetcher.formData?.get("_action") as string | null;
+  const currentAction = (fetcher.formData as unknown as FormData | null)?.get("_action") as string | null;
   const isToggling = fetcher.state !== "idle" && currentAction === "toggle_status";
   const isCloning = fetcher.state !== "idle" && currentAction === "clone";
   const isDeleting = fetcher.state !== "idle" && currentAction === "delete";
@@ -236,11 +237,7 @@ export default function ShippingDetailPage() {
 
       <PageContainer>
         <div className="flex flex-col gap-6">
-          {fetcherError && (
-            <div className="rounded-md bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-              {fetcherError}
-            </div>
-          )}
+          {fetcherError && <ErrorBanner message={fetcherError} />}
 
           {/* 기본정보 + 거래조건 + 선적정보 */}
           <ShippingDetailInfo shipping={shipping} />
@@ -286,7 +283,7 @@ export default function ShippingDetailPage() {
           />
 
           {/* 하단 메타 정보 */}
-          <div className="flex gap-4 text-xs text-zinc-400">
+          <div className="flex gap-4 text-xs text-zinc-500">
             <span>작성: {formatDate(shipping.created_at)}</span>
             <span>수정: {formatDate(shipping.updated_at)}</span>
           </div>

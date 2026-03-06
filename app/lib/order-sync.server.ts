@@ -160,6 +160,54 @@ export async function syncDeliveryDateFromOrder(
   }
 }
 
+/**
+ * PO 삭제 시 연결된 Order의 po_id 초기화.
+ * fire-and-forget: 실패 시 console.error만 출력.
+ */
+export async function unlinkPOFromOrder(
+  supabase: Supabase,
+  poId: string
+) {
+  const { error } = await supabase
+    .from("orders")
+    .update({ po_id: null, updated_at: new Date().toISOString() })
+    .eq("po_id", poId)
+    .is("deleted_at", null);
+  if (error) console.error("unlinkPOFromOrder failed:", error);
+}
+
+/**
+ * PI 삭제 시 연결된 Order의 pi_id 초기화.
+ * fire-and-forget: 실패 시 console.error만 출력.
+ */
+export async function unlinkPIFromOrder(
+  supabase: Supabase,
+  piId: string
+) {
+  const { error } = await supabase
+    .from("orders")
+    .update({ pi_id: null, updated_at: new Date().toISOString() })
+    .eq("pi_id", piId)
+    .is("deleted_at", null);
+  if (error) console.error("unlinkPIFromOrder failed:", error);
+}
+
+/**
+ * Shipping Document 삭제 시 연결된 Order의 shipping_doc_id 초기화.
+ * fire-and-forget: 실패 시 console.error만 출력.
+ */
+export async function unlinkShippingFromOrder(
+  supabase: Supabase,
+  shippingId: string
+) {
+  const { error } = await supabase
+    .from("orders")
+    .update({ shipping_doc_id: null, updated_at: new Date().toISOString() })
+    .eq("shipping_doc_id", shippingId)
+    .is("deleted_at", null);
+  if (error) console.error("unlinkShippingFromOrder failed:", error);
+}
+
 // ── Cascade Link (공유 헬퍼 - orders.server.ts, orders.$id.server.ts에서 사용) ──
 
 /** 신규 오더 생성 시 PO 기준으로 전체 FK 체인 연결 (Exactly-1 Rule) */

@@ -24,11 +24,11 @@
 
 | # | Role | File | 주요 분석 내용 |
 |---|------|------|--------------|
-| 1 | **Architect** | [architect-notes.md](brainstorm/phase9/architect-notes.md) | 컴포넌트 아키텍처, 데이터 플로우, 통합 전략, Phase 분할 |
-| 2 | **Frontend Dev** | [frontend-notes.md](brainstorm/phase9/frontend-notes.md) | react-pdf API, 6개 템플릿 레이아웃, 공통 컴포넌트 코드, UX |
-| 3 | **Perf Analyzer** | [perf-notes.md](brainstorm/phase9/perf-notes.md) | 번들 격리, 런타임 성능, lazy loading, 메모리 관리 |
-| 4 | **Researcher** | [research-notes.md](brainstorm/phase9/research-notes.md) | react-pdf v4 API, 무역서류 표준, 다운로드 UX, iOS 호환성 |
-| 5 | **Code Reviewer** | [code-review-notes.md](brainstorm/phase9/code-review-notes.md) | 기존 코드 패턴, 통합 포인트, 잠재 이슈 |
+| 1 | **Architect** | [architect-notes.md](../brainstorm/phase9/architect-notes.md) | 컴포넌트 아키텍처, 데이터 플로우, 통합 전략, Phase 분할 |
+| 2 | **Frontend Dev** | [frontend-notes.md](../brainstorm/phase9/frontend-notes.md) | react-pdf API, 6개 템플릿 레이아웃, 공통 컴포넌트 코드, UX |
+| 3 | **Perf Analyzer** | [perf-notes.md](../brainstorm/phase9/perf-notes.md) | 번들 격리, 런타임 성능, lazy loading, 메모리 관리 |
+| 4 | **Researcher** | [research-notes.md](../brainstorm/phase9/research-notes.md) | react-pdf v4 API, 무역서류 표준, 다운로드 UX, iOS 호환성 |
+| 5 | **Code Reviewer** | [code-review-notes.md](../brainstorm/phase9/code-review-notes.md) | 기존 코드 패턴, 통합 포인트, 잠재 이슈 |
 
 **제외:** backend-dev (서버 변경 없음), tester (브레인스토밍 단계), security-reviewer (새 공격 표면 없음)
 

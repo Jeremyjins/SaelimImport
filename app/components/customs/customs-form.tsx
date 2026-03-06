@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import { Card } from "~/components/ui/card";
 import { CustomsFeeInput } from "./customs-fee-input";
 import { computeFeeTotal } from "~/lib/customs-utils";
 import type { AvailableShipping, FeeBreakdown } from "~/types/customs";
@@ -76,7 +77,7 @@ export function CustomsForm({
       {/* 2열 그리드: 기본정보 + 운송비 */}
       <div className="grid md:grid-cols-2 gap-6">
         {/* 기본 정보 */}
-        <div className="rounded-lg border p-4 space-y-4">
+        <Card className="p-4 space-y-4">
           <h3 className="font-medium text-sm">기본 정보</h3>
 
           {!isEditing && (
@@ -130,7 +131,7 @@ export function CustomsForm({
               defaultValue={defaultValues?.customs_date ?? ""}
             />
           </div>
-        </div>
+        </Card>
 
         {/* 운송비 */}
         <CustomsFeeInput
@@ -161,7 +162,7 @@ export function CustomsForm({
       </div>
 
       {/* 기타비용 (full width) */}
-      <div className="rounded-lg border p-4 space-y-4">
+      <Card className="p-4 space-y-4">
         <h3 className="font-medium text-sm">기타비용</h3>
         <div className="grid md:grid-cols-2 gap-4">
           <CustomsFeeInput
@@ -183,10 +184,10 @@ export function CustomsForm({
             />
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* 총 비용 합계 */}
-      <div className="rounded-lg border bg-zinc-50 px-4 py-3 flex items-center justify-between">
+      <Card className="px-4 py-3 bg-zinc-50 flex items-center justify-between">
         <span className="text-sm font-medium text-zinc-600">총 비용 합계</span>
         <span className="text-lg font-bold">
           {new Intl.NumberFormat("ko-KR", {
@@ -195,7 +196,7 @@ export function CustomsForm({
             minimumFractionDigits: 0,
           }).format(grandTotal)}
         </span>
-      </div>
+      </Card>
 
       {/* 버튼 */}
       <div className="flex justify-end gap-3">
