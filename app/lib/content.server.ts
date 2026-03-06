@@ -19,6 +19,7 @@ const PARENT_TABLE_MAP: Record<ContentType, string> = {
   shipping: "shipping_documents",
   order: "orders",
   customs: "customs",
+  delivery: "deliveries",
 };
 
 // ── 콘텐츠 조회 ────────────────────────────────────────────

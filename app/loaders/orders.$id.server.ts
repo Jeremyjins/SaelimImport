@@ -9,7 +9,9 @@ import {
   unlinkDocumentSchema,
 } from "~/loaders/orders.schema";
 import type { OrderDetail } from "~/types/order";
-import { cascadeLinkPartial } from "~/lib/order-sync.server";
+import { cascadeLinkPartial, syncDeliveryDateFromOrder } from "~/lib/order-sync.server";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "~/types/database";
 
 // ── 타입 ────────────────────────────────────────────────────
 
@@ -153,6 +155,15 @@ export async function action({ request, context, params }: DetailLoaderArgs) {
       return data(
         { success: false, error: "저장 중 오류가 발생했습니다." },
         { status: 500, headers: responseHeaders }
+      );
+    }
+
+    // delivery_date 변경 시 연결된 Delivery 역방향 동기화 (버그 수정)
+    if (delivery_date !== undefined && orderCheck.delivery_id) {
+      await syncDeliveryDateFromOrder(
+        supabase as SupabaseClient<Database>,
+        orderCheck.delivery_id,
+        delivery_date || null
       );
     }
 

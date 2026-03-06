@@ -1,6 +1,6 @@
 import type { Json } from "~/types/database";
 
-export type ContentType = "po" | "pi" | "shipping" | "order" | "customs";
+export type ContentType = "po" | "pi" | "shipping" | "order" | "customs" | "delivery";
 
 export interface ContentAttachment {
   id: string;

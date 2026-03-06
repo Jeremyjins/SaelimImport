@@ -32,6 +32,7 @@ export default [
     route("customs/:id", "routes/_layout.customs.$id.tsx"),
     route("customs/:id/edit", "routes/_layout.customs.$id.edit.tsx"),
     route("delivery", "routes/_layout.delivery.tsx"),
+    route("delivery/:id", "routes/_layout.delivery.$id.tsx"),
     route("settings/organizations", "routes/_layout.settings.organizations.tsx"),
     route("settings/products", "routes/_layout.settings.products.tsx"),
     route("settings/users", "routes/_layout.settings.users.tsx"),
@@ -40,6 +41,7 @@ export default [
   // Saelim Layout (세림 전용)
   layout("routes/_saelim.tsx", [
     route("saelim/delivery", "routes/_saelim.delivery.tsx"),
+    route("saelim/delivery/:id", "routes/_saelim.delivery.$id.tsx"),
   ]),
 
   // Resource routes

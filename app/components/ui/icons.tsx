@@ -63,4 +63,10 @@ export {
   CheckCircle2,
   ToggleLeft,
   ToggleRight,
+  // Delivery module icons
+  CheckCircle,
+  XCircle,
+  ExternalLink,
+  // Saelim portal icons
+  Send,
 } from "lucide-react";

@@ -16,7 +16,7 @@ interface ContentEditorProps {
   onChange?: (json: JSONContent) => void;
   readOnly?: boolean;
   placeholder?: string;
-  documentType: "po" | "pi" | "shipping" | "order" | "customs";
+  documentType: "po" | "pi" | "shipping" | "order" | "customs" | "delivery";
   parentId: string;
   className?: string;
 }

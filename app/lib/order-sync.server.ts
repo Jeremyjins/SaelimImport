@@ -109,6 +109,57 @@ export async function unlinkCustomsFromOrder(
   return true;
 }
 
+/**
+ * Delivery 삭제 시 연결된 Order의 delivery_id, delivery_date 초기화.
+ * delete 흐름의 선행 조건이므로 blocking: 실패 시 false 반환.
+ */
+export async function unlinkDeliveryFromOrder(
+  supabase: Supabase,
+  deliveryId: string
+): Promise<boolean> {
+  const { error } = await supabase
+    .from("orders")
+    .update({
+      delivery_id: null,
+      delivery_date: null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("delivery_id", deliveryId)
+    .is("deleted_at", null);
+
+  if (error) {
+    console.error("unlinkDeliveryFromOrder failed:", error);
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Order.delivery_date 인라인 수정 시 연결된 Delivery.delivery_date 동기화.
+ * fire-and-forget: 실패 시 console.error만 출력.
+ */
+export async function syncDeliveryDateFromOrder(
+  supabase: Supabase,
+  deliveryId: string,
+  date: string | null
+) {
+  try {
+    const status = date ? "scheduled" : "pending";
+    await supabase
+      .from("deliveries")
+      .update({
+        delivery_date: date,
+        status,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", deliveryId)
+      .neq("status", "delivered") // delivered 상태는 덮어쓰지 않음 (HIGH-3)
+      .is("deleted_at", null);
+  } catch (err) {
+    console.error("syncDeliveryDateFromOrder failed:", err);
+  }
+}
+
 // ── Cascade Link (공유 헬퍼 - orders.server.ts, orders.$id.server.ts에서 사용) ──
 
 /** 신규 오더 생성 시 PO 기준으로 전체 FK 체인 연결 (Exactly-1 Rule) */

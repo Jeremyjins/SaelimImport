@@ -199,6 +199,7 @@ export type Database = {
           id: string
           pi_id: string | null
           shipping_doc_id: string | null
+          status: string
           updated_at: string | null
         }
         Insert: {
@@ -208,6 +209,7 @@ export type Database = {
           id?: string
           pi_id?: string | null
           shipping_doc_id?: string | null
+          status?: string
           updated_at?: string | null
         }
         Update: {
@@ -217,6 +219,7 @@ export type Database = {
           id?: string
           pi_id?: string | null
           shipping_doc_id?: string | null
+          status?: string
           updated_at?: string | null
         }
         Relationships: [
@@ -244,6 +247,7 @@ export type Database = {
           reason: string | null
           requested_by: string | null
           requested_date: string
+          responded_at: string | null
           responded_by: string | null
           response_text: string | null
           status: string | null
@@ -256,6 +260,7 @@ export type Database = {
           reason?: string | null
           requested_by?: string | null
           requested_date: string
+          responded_at?: string | null
           responded_by?: string | null
           response_text?: string | null
           status?: string | null
@@ -268,6 +273,7 @@ export type Database = {
           reason?: string | null
           requested_by?: string | null
           requested_date?: string
+          responded_at?: string | null
           responded_by?: string | null
           response_text?: string | null
           status?: string | null
